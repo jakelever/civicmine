@@ -13,7 +13,7 @@ import json
 def now():
 	return time.strftime("%Y-%m-%d %H:%M:%S")
 
-def parseAndFindEntities(biocFile,filterTermsFile,wordlistPickle,outSentencesFilename):
+def parseAndFindEntities(biocFile,filterTermsFile,wordlistPickle,variantStopwordsFile,outSentencesFilename):
 	print("%s : start" % now())
 
 	with open(wordlistPickle,'rb') as f:
@@ -21,6 +21,9 @@ def parseAndFindEntities(biocFile,filterTermsFile,wordlistPickle,outSentencesFil
 
 	with open(filterTermsFile,'r') as f:
 		filterTerms = [ line.strip().lower() for line in f ]
+
+	with open(variantStopwordsFile) as f:
+		variantStopwords = [ line.strip() for line in f ]
 
 	timers = Counter()
 
@@ -31,7 +34,7 @@ def parseAndFindEntities(biocFile,filterTermsFile,wordlistPickle,outSentencesFil
 
 	print("%s : processing..." % now())
 	parser = kindred.Parser()
-	ner = kindred.EntityRecognizer(lookup=termLookup,detectFusionGenes=True,detectMicroRNA=True,acronymDetectionForAmbiguity=True,mergeTerms=True)
+	ner = kindred.EntityRecognizer(lookup=termLookup,detectFusionGenes=True,detectMicroRNA=True,acronymDetectionForAmbiguity=True,mergeTerms=True,detectVariants=True,variantStopwords=variantStopwords)
 	for corpusno,corpus in enumerate(kindred.iterLoadDataFromBioc(biocFile)):
 		startTime = time.time()
 		parser.parse(corpus)
@@ -90,9 +93,10 @@ if __name__ == '__main__':
 	parser.add_argument('--biocFile',required=True,help='BioC XML file to use')
 	parser.add_argument('--filterTerms',required=True)
 	parser.add_argument('--wordlistPickle',required=True)
+	parser.add_argument('--variantStopwords',required=True)
 	parser.add_argument('--outSentencesFilename',required=True)
 
 	args = parser.parse_args()
 
-	parseAndFindEntities(args.biocFile,args.filterTerms,args.wordlistPickle,args.outSentencesFilename)
+	parseAndFindEntities(args.biocFile,args.filterTerms,args.wordlistPickle,args.variantStopwords,args.outSentencesFilename)
 
