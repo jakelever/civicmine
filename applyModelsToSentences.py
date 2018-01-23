@@ -39,7 +39,7 @@ def standardizeMIRName(externalID):
 
 	return standardName
 
-def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cancerTypes,outData):
+def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cancerTypes,drugs,outData):
 	print("%s : start" % now())
 
 	models = {}
@@ -58,6 +58,11 @@ def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cance
 		for line in f:
 			cancerid,singleterm,_ = line.strip().split('\t')
 			IDToTerm[cancerid] = singleterm
+
+	with codecs.open(drugs,'r','utf-8') as f:
+		for line in f:
+			drugid,singleterm,_ = line.strip().split('\t')
+			IDToTerm[drugid] = singleterm
 
 	with codecs.open(filterTerms,'r','utf-8') as f:
 		filterTerms = [ line.strip().lower() for line in f ]
@@ -128,11 +133,10 @@ def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cance
 				sentenceStart = sentence.tokens[0].startPos
 
 				relType = relation.relationType
-				entityData = []
+				entityData = {'cancer':['' for _ in range(5)], 'drug':['' for _ in range(5)], 'gene':['' for _ in range(5)] }
 				for eID in relation.entityIDs:
 					entity = eID_to_entity[eID]
-					entityData.append(entity.externalID)
-					entityData.append(entity.text)
+
 
 
 					if entity.externalID.startswith('combo'):
@@ -144,17 +148,23 @@ def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cance
 					else:
 						standardizedTerm = getStandardizedTerm(entity.text,entity.externalID,IDToTerm)
 
-					entityData.append(standardizedTerm)
-					
 					assert len(entity.position) == 1, "Expecting entities that are contigious and have only one start and end position within the text"
 					startPos,endPos = entity.position[0]
-					entityData.append(startPos - sentenceStart)
-					entityData.append(endPos - sentenceStart)
+
+					tmp = []
+					tmp.append(entity.externalID)
+					tmp.append(entity.text)
+					tmp.append(standardizedTerm)
+					tmp.append(startPos - sentenceStart)
+					tmp.append(endPos - sentenceStart)
+
+					entityData[entity.entityType] = tmp
 
 
 				if doc.metadata["pmid"]:
 					m = doc.metadata
-					outData = [m["pmid"],m['title'],m["journal"],m["year"],m['section'],relType] + entityData + [sentence.text]
+					combinedEntityData = entityData['cancer'] + entityData['gene'] + entityData['drug']
+					outData = [m["pmid"],m['title'],m["journal"],m["year"],m['section'],relType] + combinedEntityData + [sentence.text]
 					outLine = "\t".join(map(str,outData))
 					outF.write(outLine+"\n")
 
@@ -178,8 +188,9 @@ if __name__ == '__main__':
 	parser.add_argument('--wordlistPickle',required=True)
 	parser.add_argument('--genes',required=True)
 	parser.add_argument('--cancerTypes',required=True)
+	parser.add_argument('--drugs',required=True)
 	parser.add_argument('--outData',required=True)
 
 	args = parser.parse_args()
 
-	civicmine(args.sentenceFile,args.models.split(','),args.filterTerms,args.wordlistPickle,args.genes,args.cancerTypes,args.outData)
+	civicmine(args.sentenceFile,args.models.split(','),args.filterTerms,args.wordlistPickle,args.genes,args.cancerTypes,args.drugs,args.outData)
