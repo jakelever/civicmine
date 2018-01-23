@@ -39,6 +39,13 @@ def standardizeMIRName(externalID):
 
 	return standardName
 
+def wipeCandidateRelations(corpus):
+	for doc in corpus.documents:
+		for sentence in doc.sentences:
+			sentence.candidateRelationsWithClasses = []
+			sentence.candidateRelationsProcessed = False
+	corpus.candidatesFound = False
+
 def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cancerTypes,drugs,outData):
 	print("%s : start" % now())
 
@@ -103,6 +110,7 @@ def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cance
 	with codecs.open(outData,'a','utf-8') as outF:
 		startTime = time.time()
 		for modelname,model in models.items():
+			wipeCandidateRelations(corpus)
 			model.predict(corpus)
 		timers['predicted'] += time.time() - startTime
 
