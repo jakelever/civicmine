@@ -1,0 +1,7 @@
+.snakemake
+*.pyc
+*.gz
+*.tmp
+*.tsv
+*.json
+
