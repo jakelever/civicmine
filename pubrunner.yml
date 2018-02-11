@@ -19,6 +19,6 @@ run:
    - python parseAndFindEntities.py --biocFile {IN:PUBMED/%} --filterTerms filterTerms.txt --wordlistPickle civicmine_terms.pickle --variantStopwords stopwords_variants.txt --outSentencesFilename {OUT:sentenceData/%.json}
    - python parseAndFindEntities.py --biocFile {IN:PMCOA/%} --filterTerms filterTerms.txt --wordlistPickle civicmine_terms.pickle --variantStopwords stopwords_variants.txt --outSentencesFilename {OUT:sentenceData/%.json}
    - python applyModelsToSentences.py --sentenceFile {IN:sentenceData/%.json} --models models/Diagnostic.model,models/Predictive.model,models/Prognostic.model,models/Predisposing.model,models/AssociatedOmicEvent.model --filterTerms filterTerms.txt --genes terms_genes.txt --cancerTypes terms_cancer.txt --drugs terms_drugs.txt --omicEvents terms_omicevents.txt --wordlistPickle civicmine_terms.pickle --outData {OUT:final/%.tsv}
-   - find {IN:out} -type f | xargs cat | sort -u > {OUT:uniq.tsv}
+   - find {IN:final} -type f | xargs cat | sort -u > {OUT:uniq.tsv}
    - cat header.tsv {IN:uniq.tsv} > {OUT:civicmine.tsv}
 output: civicmine.tsv
