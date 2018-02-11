@@ -12,7 +12,7 @@ if __name__ == '__main__':
 
 	args = parser.parse_args()
 
-	thresholds = {'Driver':0.89, 'Oncogene': 0.94, 'Tumor_Suppressor': 0.97}
+	threshold = 0.9
 
 	relationInfo = []
 	relationInfo.append(('Diagnostic','Diagnostic',('cancer','gene')))
@@ -36,7 +36,6 @@ if __name__ == '__main__':
 
 		print("  Doing training")
 		features = "entityTypes,unigramsBetweenEntities,bigrams,dependencyPathEdges,dependencyPathEdgesNearEntities".split(',')
-		threshold = 0.7 #thresholds[relationType]
 		classifier = kindred.RelationClassifier(classifierType='LogisticRegression',threshold=threshold,features=features,entityCount=len(entityTypes),acceptedEntityTypes=[entityTypes])
 		classifier.train(trainCorpus)
 
