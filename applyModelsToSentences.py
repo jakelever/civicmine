@@ -13,31 +13,31 @@ import json
 def now():
 	return time.strftime("%Y-%m-%d %H:%M:%S")
 
-def getStandardizedTerm(text,externalID,IDToTerm):
-	standardizedTerms = [ IDToTerm[eid] for eid in externalID.split(';') ]
-	standardizedTerms = sorted(list(set(standardizedTerms)))
+def getNormalizedTerm(text,externalID,IDToTerm):
+	normalizedTerms = [ IDToTerm[eid] for eid in externalID.split(';') ]
+	normalizedTerms = sorted(list(set(normalizedTerms)))
 
-	standardizedTermsLower = [ st.lower() for st in standardizedTerms ]
+	normalizedTermsLower = [ st.lower() for st in normalizedTerms ]
 	textLower = text.lower()
 
-	if textLower in standardizedTermsLower:
-		index = standardizedTermsLower.index(textLower)
-		standardizedTerm = standardizedTerms[index]
+	if textLower in normalizedTermsLower:
+		index = normalizedTermsLower.index(textLower)
+		normalizedTerm = normalizedTerms[index]
 	else:
-		standardizedTerm = ";".join(standardizedTerms)
-	return standardizedTerm
+		normalizedTerm = ";".join(normalizedTerms)
+	return normalizedTerm
 
-def standardizeMIRName(externalID):
+def normalizeMIRName(externalID):
 	assert externalID.startswith('mirna|'), "Unexpected ID: %s" % externalID
-	standardName = externalID[4:]
+	normalizedName = externalID[4:]
 
 	search = re.search('mirna\|\D*(?P<id>\d+[A-Za-z]*)',externalID)
 	if search:
 		mirID = search.groupdict()['id']
 		if not mirID is None:
-			standardName = "miR-%s" % mirID
+			normalizedName = "miR-%s" % mirID
 
-	return standardName
+	return normalizedName
 
 def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cancerTypes,drugs,omicEvents,outData):
 	print("%s : start" % now())
@@ -175,12 +175,12 @@ def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cance
 
 					if entity.externalID.startswith('combo'):
 						externalIDsplit = entity.externalID.split('|')
-						standardizedTerms = [ getStandardizedTerm("",st.replace('&',';'),IDToTerm) for st in externalIDsplit[1:] ]
-						standardizedTerm = "|".join(standardizedTerms)
+						normalizedTerms = [ getNormalizedTerm("",st.replace('&',';'),IDToTerm) for st in externalIDsplit[1:] ]
+						normalizedTerm = "|".join(normalizedTerms)
 					elif entity.externalID.startswith('mirna|'):
-						standardizedTerm = standardizeMIRName(entity.externalID)
+						normalizedTerm = normalizeMIRName(entity.externalID)
 					else:
-						standardizedTerm = getStandardizedTerm(entity.text,entity.externalID,IDToTerm)
+						normalizedTerm = getNormalizedTerm(entity.text,entity.externalID,IDToTerm)
 
 					assert len(entity.position) == 1, "Expecting entities that are contigious and have only one start and end position within the text"
 					startPos,endPos = entity.position[0]
@@ -188,7 +188,7 @@ def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cance
 					tmp = []
 					tmp.append(entity.externalID)
 					tmp.append(entity.text)
-					tmp.append(standardizedTerm)
+					tmp.append(normalizedTerm)
 					tmp.append(startPos - sentenceStart)
 					tmp.append(endPos - sentenceStart)
 
@@ -199,13 +199,13 @@ def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cance
 					for entity in list(geneID2OmicEvent[geneID]):
 						startPos,endPos = oe.position[0]
 						if entity.externalID.startswith('substitution|'):
-							standardizedTerm = 'substitution'
+							normalizedTerm = 'substitution'
 						else:
-							standardizedTerm = getStandardizedTerm(entity.text,entity.externalID,IDToTerm)
+							normalizedTerm = getNormalizedTerm(entity.text,entity.externalID,IDToTerm)
 						tmp = []
 						tmp.append(entity.externalID)
 						tmp.append(entity.text)
-						tmp.append(standardizedTerm)
+						tmp.append(normalizedTerm)
 						tmp.append(startPos - sentenceStart)
 						tmp.append(endPos - sentenceStart)
 						associatedOmicEvents.append(tmp)
