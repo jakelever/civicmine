@@ -39,14 +39,7 @@ def standardizeMIRName(externalID):
 
 	return standardName
 
-def wipeCandidateRelations(corpus):
-	for doc in corpus.documents:
-		for sentence in doc.sentences:
-			sentence.candidateRelationsWithClasses = []
-			sentence.candidateRelationsProcessed = False
-	corpus.candidatesFound = False
-
-def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cancerTypes,drugs,outData):
+def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cancerTypes,drugs,omicEvents,outData):
 	print("%s : start" % now())
 
 	models = {}
@@ -70,6 +63,11 @@ def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cance
 		for line in f:
 			drugid,singleterm,_ = line.strip().split('\t')
 			IDToTerm[drugid] = singleterm
+
+	with codecs.open(omicEvents,'r','utf-8') as f:
+		for line in f:
+			omiceventid,singleterm,_ = line.strip().split('\t')
+			IDToTerm[omiceventid] = singleterm
 
 	with codecs.open(filterTerms,'r','utf-8') as f:
 		filterTerms = [ line.strip().lower() for line in f ]
@@ -102,7 +100,7 @@ def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cance
 	print("%s : parsed" % now())
 
 	startTime = time.time()
-	ner = kindred.EntityRecognizer(lookup=termLookup,detectFusionGenes=True,detectMicroRNA=True,acronymDetectionForAmbiguity=True,mergeTerms=True)
+	ner = kindred.EntityRecognizer(lookup=termLookup,detectVariants=True,detectFusionGenes=True,detectMicroRNA=True,acronymDetectionForAmbiguity=True,mergeTerms=True,removePathways=True)
 	ner.annotate(corpus)
 	timers['ner'] += time.time() - startTime
 	print("%s : ner" % now())
@@ -110,7 +108,6 @@ def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cance
 	with codecs.open(outData,'a','utf-8') as outF:
 		startTime = time.time()
 		for modelname,model in models.items():
-			wipeCandidateRelations(corpus)
 			model.predict(corpus)
 		timers['predicted'] += time.time() - startTime
 
@@ -119,7 +116,12 @@ def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cance
 		startTime = time.time()
 
 		for doc in corpus.documents:
+			# Skip if no relations are found
 			if len(doc.relations) == 0:
+				continue
+
+			# Skip if there isn't an associated PMID
+			if not doc.metadata["pmid"]:
 				continue
 
 			eID_to_sentence = {}
@@ -128,7 +130,28 @@ def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cance
 					eID_to_sentence[eID] = sentence
 			eID_to_entity = doc.getEntityIDsToEntities()
 
+			geneID2OmicEvent = defaultdict(list)
 			for relation in doc.relations:
+				# We're only dealing with OmicEvents in this loop
+				if relation.relationType != 'AssociatedOmicEvent':
+					continue
+
+				typeToEntity = {}
+				for eID in relation.entityIDs:
+					entity = eID_to_entity[eID]
+					typeToEntity[entity.entityType] = entity
+
+				geneID = typeToEntity['gene'].entityID
+			
+				oe = typeToEntity['omicevent']
+				#omicEvent = (typeToEntity['omicevent'].externalID,typeToEntity['omicevent'].text,)
+				geneID2OmicEvent[geneID].append(oe)
+
+			for relation in doc.relations:
+				# IgnoreOmicEvent as we deal with them seperately (above)
+				if relation.relationType == 'AssociatedOmicEvent':
+					continue
+
 				sentence = eID_to_sentence[relation.entityIDs[0]]
 				sentenceTextLower = sentence.text.lower()
 
@@ -142,10 +165,13 @@ def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cance
 
 				relType = relation.relationType
 				entityData = {'cancer':['' for _ in range(5)], 'drug':['' for _ in range(5)], 'gene':['' for _ in range(5)] }
+				geneID = None
 				for eID in relation.entityIDs:
 					entity = eID_to_entity[eID]
 
-
+					if entity.entityType == 'gene':
+						assert geneID is None, 'Relation should only contain a single gene'
+						geneID = entity.entityID
 
 					if entity.externalID.startswith('combo'):
 						externalIDsplit = entity.externalID.split('|')
@@ -168,10 +194,29 @@ def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cance
 
 					entityData[entity.entityType] = tmp
 
+				associatedOmicEvents = []
+				if geneID in geneID2OmicEvent:
+					for entity in list(geneID2OmicEvent[geneID]):
+						startPos,endPos = oe.position[0]
+						if entity.externalID.startswith('substitution|'):
+							standardizedTerm = 'substitution'
+						else:
+							standardizedTerm = getStandardizedTerm(entity.text,entity.externalID,IDToTerm)
+						tmp = []
+						tmp.append(entity.externalID)
+						tmp.append(entity.text)
+						tmp.append(standardizedTerm)
+						tmp.append(startPos - sentenceStart)
+						tmp.append(endPos - sentenceStart)
+						associatedOmicEvents.append(tmp)
+				else:
+					blank = ['' for _ in range(5)]
+					associatedOmicEvents.append(blank)
+					
 
-				if doc.metadata["pmid"]:
+				for associatedOmicEvent in associatedOmicEvents:
 					m = doc.metadata
-					combinedEntityData = entityData['cancer'] + entityData['gene'] + entityData['drug']
+					combinedEntityData = entityData['cancer'] + entityData['gene'] + entityData['drug'] + associatedOmicEvent
 					outData = [m["pmid"],m['title'],m["journal"],m["year"],m['section'],relType] + combinedEntityData + [sentence.text]
 					outLine = "\t".join(map(str,outData))
 					outF.write(outLine+"\n")
@@ -197,8 +242,9 @@ if __name__ == '__main__':
 	parser.add_argument('--genes',required=True)
 	parser.add_argument('--cancerTypes',required=True)
 	parser.add_argument('--drugs',required=True)
+	parser.add_argument('--omicEvents',required=True)
 	parser.add_argument('--outData',required=True)
 
 	args = parser.parse_args()
 
-	civicmine(args.sentenceFile,args.models.split(','),args.filterTerms,args.wordlistPickle,args.genes,args.cancerTypes,args.drugs,args.outData)
+	civicmine(args.sentenceFile,args.models.split(','),args.filterTerms,args.wordlistPickle,args.genes,args.cancerTypes,args.drugs,args.omicEvents,args.outData)
