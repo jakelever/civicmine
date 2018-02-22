@@ -39,7 +39,16 @@ def normalizeMIRName(externalID):
 
 	return normalizedName
 
-def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cancerTypes,drugs,omicEvents,outData):
+def wipeCandidateRelations(corpus):
+	for doc in corpus.documents:
+		for s in doc.sentences:
+			s.candidateRelationsWithClasses = defaultdict(list)
+			s.candidateRelationsEntityCounts = set()
+			
+	corpus.candidateRelationsEntityCounts = set()
+	corpus.relationTypes = None
+
+def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cancerTypes,drugs,variants,outData):
 	print("%s : start" % now())
 
 	models = {}
@@ -64,10 +73,10 @@ def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cance
 			drugid,singleterm,_ = line.strip().split('\t')
 			IDToTerm[drugid] = singleterm
 
-	with codecs.open(omicEvents,'r','utf-8') as f:
+	with codecs.open(variants,'r','utf-8') as f:
 		for line in f:
-			omiceventid,singleterm,_ = line.strip().split('\t')
-			IDToTerm[omiceventid] = singleterm
+			variantid,singleterm,_ = line.strip().split('\t')
+			IDToTerm[variantid] = singleterm
 
 	with codecs.open(filterTerms,'r','utf-8') as f:
 		filterTerms = [ line.strip().lower() for line in f ]
@@ -108,6 +117,7 @@ def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cance
 	with codecs.open(outData,'a','utf-8') as outF:
 		startTime = time.time()
 		for modelname,model in models.items():
+			wipeCandidateRelations(corpus)
 			model.predict(corpus)
 		timers['predicted'] += time.time() - startTime
 
@@ -130,10 +140,10 @@ def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cance
 					eID_to_sentence[eID] = sentence
 			eID_to_entity = doc.getEntityIDsToEntities()
 
-			geneID2OmicEvent = defaultdict(list)
+			geneID2Variant = defaultdict(list)
 			for relation in doc.relations:
-				# We're only dealing with OmicEvents in this loop
-				if relation.relationType != 'AssociatedOmicEvent':
+				# We're only dealing with Variants in this loop
+				if relation.relationType != 'AssociatedVariant':
 					continue
 
 				typeToEntity = {}
@@ -143,13 +153,13 @@ def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cance
 
 				geneID = typeToEntity['gene'].entityID
 			
-				oe = typeToEntity['omicevent']
-				#omicEvent = (typeToEntity['omicevent'].externalID,typeToEntity['omicevent'].text,)
-				geneID2OmicEvent[geneID].append(oe)
+				v = typeToEntity['variant']
+				#variant = (typeToEntity['variant'].externalID,typeToEntity['variant'].text,)
+				geneID2Variant[geneID].append(v)
 
 			for relation in doc.relations:
-				# IgnoreOmicEvent as we deal with them seperately (above)
-				if relation.relationType == 'AssociatedOmicEvent':
+				# IgnoreVariant as we deal with them seperately (above)
+				if relation.relationType == 'AssociatedVariant':
 					continue
 
 				sentence = eID_to_sentence[relation.entityIDs[0]]
@@ -194,10 +204,10 @@ def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cance
 
 					entityData[entity.entityType] = tmp
 
-				associatedOmicEvents = []
-				if geneID in geneID2OmicEvent:
-					for entity in list(geneID2OmicEvent[geneID]):
-						startPos,endPos = oe.position[0]
+				associatedVariants = []
+				if geneID in geneID2Variant:
+					for entity in list(geneID2Variant[geneID]):
+						startPos,endPos = entity.position[0]
 						if entity.externalID.startswith('substitution|'):
 							normalizedTerm = 'substitution'
 						else:
@@ -208,15 +218,15 @@ def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cance
 						tmp.append(normalizedTerm)
 						tmp.append(startPos - sentenceStart)
 						tmp.append(endPos - sentenceStart)
-						associatedOmicEvents.append(tmp)
+						associatedVariants.append(tmp)
 				else:
 					blank = ['' for _ in range(5)]
-					associatedOmicEvents.append(blank)
+					associatedVariants.append(blank)
 					
 
-				for associatedOmicEvent in associatedOmicEvents:
+				for associatedVariant in associatedVariants:
 					m = doc.metadata
-					combinedEntityData = entityData['cancer'] + entityData['gene'] + entityData['drug'] + associatedOmicEvent
+					combinedEntityData = entityData['cancer'] + entityData['gene'] + entityData['drug'] + associatedVariant
 					outData = [m["pmid"],m['title'],m["journal"],m["year"],m['section'],relType] + combinedEntityData + [sentence.text]
 					outLine = "\t".join(map(str,outData))
 					outF.write(outLine+"\n")
@@ -242,9 +252,9 @@ if __name__ == '__main__':
 	parser.add_argument('--genes',required=True)
 	parser.add_argument('--cancerTypes',required=True)
 	parser.add_argument('--drugs',required=True)
-	parser.add_argument('--omicEvents',required=True)
+	parser.add_argument('--variants',required=True)
 	parser.add_argument('--outData',required=True)
 
 	args = parser.parse_args()
 
-	civicmine(args.sentenceFile,args.models.split(','),args.filterTerms,args.wordlistPickle,args.genes,args.cancerTypes,args.drugs,args.omicEvents,args.outData)
+	civicmine(args.sentenceFile,args.models.split(','),args.filterTerms,args.wordlistPickle,args.genes,args.cancerTypes,args.drugs,args.variants,args.outData)

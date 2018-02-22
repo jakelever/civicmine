@@ -10,14 +10,14 @@ if __name__ == '__main__':
 	parser.add_argument('--cancers',required=True)
 	parser.add_argument('--drugs',required=True)
 	parser.add_argument('--conflicting',required=True)
-	parser.add_argument('--omicevents',required=True)
+	parser.add_argument('--variants',required=True)
 	parser.add_argument('--wordlistPickle',required=True)
 
 	args = parser.parse_args()
 
 	print("Loading...")
 
-	termLookup = kindred.EntityRecognizer.loadWordlists({'gene':args.genes,'cancer':args.cancers,'drug':args.drugs,'omicevent':args.omicevents,'unused':args.conflicting}, idColumn=0, termsColumn=2)
+	termLookup = kindred.EntityRecognizer.loadWordlists({'gene':args.genes,'cancer':args.cancers,'drug':args.drugs,'variant':args.variants,'unused':args.conflicting}, idColumn=0, termsColumn=2)
 
 	with open(args.wordlistPickle,'wb') as f:
 		pickle.dump(termLookup,f)

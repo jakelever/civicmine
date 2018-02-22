@@ -5,42 +5,33 @@ import os
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser(description='Build and save a classifier')
-	parser.add_argument('--inTrain',type=str,required=True)
-	#parser.add_argument('--outModel_Driver',type=str,required=True)
-	#parser.add_argument('--outModel_Oncogene',type=str,required=True)
-	#parser.add_argument('--outModel_TumorSuppressor',type=str,required=True)
+	parser.add_argument('--inTrain',type=str,required=True,help='Directory with corpus in standoff format')
+	parser.add_argument('--outDir',type=str,required=True,help='Directory to store output model files')
 
 	args = parser.parse_args()
 
-	threshold = 0.9
-
 	relationInfo = []
-	relationInfo.append(('Diagnostic','Diagnostic',('cancer','gene')))
-	relationInfo.append(('Predictive/Prognostic','Prognostic',('cancer','gene')))
-	relationInfo.append(('Predictive/Prognostic','Predictive',('cancer','drug','gene')))
-	relationInfo.append(('Predisposing','Predisposing',('cancer','gene')))
+	relationInfo.append(('AssociatedVariant',0.6,('gene','variant')))
+	relationInfo.append(('Diagnostic',0.7,('cancer','gene')))
+	relationInfo.append(('Predictive',0.92,('cancer','drug','gene')))
+	relationInfo.append(('Prognostic',0.7,('cancer','gene')))
+	relationInfo.append(('Predisposing',0.96,('cancer','gene')))
 
-	#for relationType,outModel in zip(['Driver','Oncogene','Tumor_Suppressor'], [args.outModel_Driver,args.outModel_Oncogene,args.outModel_TumorSuppressor] ):
-	#for relationType in ['Diagnostic','Predictive/Prognostic','Predisposing']:
-	for relationType,replacementType,entityTypes in relationInfo:
+	for relationType,threshold,entityTypes in relationInfo:
 		print("Building %s model" % relationType)
 		print("  Loading training")
-		goldDir = 'gold'
 		trainCorpus = kindred.loadDir(dataFormat='standoff',directory=args.inTrain)
 	
 		for doc in trainCorpus.documents:
 			doc.relations = [ r for r in doc.relations if r.relationType == relationType ]
 			doc.relations = [ r for r in doc.relations if len(r.entityIDs) == len(entityTypes) ]
-			for r in doc.relations:
-				r.relationType = replacementType
 
 		print("  Doing training")
-		features = "entityTypes,unigramsBetweenEntities,bigrams,dependencyPathEdges,dependencyPathEdgesNearEntities".split(',')
-		classifier = kindred.RelationClassifier(classifierType='LogisticRegression',threshold=threshold,features=features,entityCount=len(entityTypes),acceptedEntityTypes=[entityTypes])
+		classifier = kindred.RelationClassifier(classifierType='LogisticRegression',threshold=threshold,entityCount=len(entityTypes),acceptedEntityTypes=[entityTypes])
 		classifier.train(trainCorpus)
 
 		print("  Saving classifer")
-		outModel = os.path.join('models',"%s.model" % replacementType)
+		outModel = os.path.join(args.outDir,"%s.model" % relationType)
 		with open(outModel,'wb') as f:
 			pickle.dump(classifier,f)
 
