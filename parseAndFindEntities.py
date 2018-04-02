@@ -13,6 +13,14 @@ import json
 def now():
 	return time.strftime("%Y-%m-%d %H:%M:%S")
 
+def filterCorpus(corpus,filterTerms):
+	filtered = kindred.Corpus()
+	for doc in corpus.documents:
+		termsFound = any( ft in doc.text.lower() for ft in filterTerms )
+		if termsFound:
+			filtered.addDocument(doc)
+	return filtered
+
 def parseAndFindEntities(biocFile,filterTermsFile,wordlistPickle,variantStopwordsFile,outSentencesFilename):
 	print("%s : start" % now())
 
@@ -36,6 +44,10 @@ def parseAndFindEntities(biocFile,filterTermsFile,wordlistPickle,variantStopword
 	parser = kindred.Parser()
 	ner = kindred.EntityRecognizer(lookup=termLookup,detectFusionGenes=True,detectMicroRNA=True,acronymDetectionForAmbiguity=True,mergeTerms=True,detectVariants=True,variantStopwords=variantStopwords)
 	for corpusno,corpus in enumerate(kindred.iterLoadDataFromBioc(biocFile)):
+		startTime = time.time()
+		corpus = filterCorpus(corpus,filterTerms)
+		timers['filter'] += time.time() - startTime
+
 		startTime = time.time()
 		parser.parse(corpus)
 		timers['parser'] += time.time() - startTime
@@ -64,9 +76,9 @@ def parseAndFindEntities(biocFile,filterTermsFile,wordlistPickle,variantStopword
 				entityTypesInSentence = sentence.entityIDToType.values()
 				foundCancer = 'cancer' in entityTypesInSentence
 				foundGene = 'gene' in entityTypesInSentence
-				foundOmicEvent = 'omicevent' in entityTypesInSentence
+				foundVariant = 'variant' in entityTypesInSentence
 
-				if foundCancer and foundGene and foundOmicEvent:
+				if foundCancer and foundGene and foundVariant:
 					sentenceText = sentence.text.strip(string.whitespace + ',')
 
 					if not sentenceText in duplicateCheck:

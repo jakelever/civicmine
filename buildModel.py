@@ -27,6 +27,7 @@ if __name__ == '__main__':
 			doc.relations = [ r for r in doc.relations if len(r.entityIDs) == len(entityTypes) ]
 
 		print("  Doing training")
+		threshold = 0.5
 		classifier = kindred.RelationClassifier(classifierType='LogisticRegression',threshold=threshold,entityCount=len(entityTypes),acceptedEntityTypes=[entityTypes])
 		classifier.train(trainCorpus)
 

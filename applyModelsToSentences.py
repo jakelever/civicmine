@@ -130,6 +130,8 @@ def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cance
 			if len(doc.relations) == 0:
 				continue
 
+			print(doc.entities)
+
 			# Skip if there isn't an associated PMID
 			if not doc.metadata["pmid"]:
 				continue
@@ -154,13 +156,16 @@ def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cance
 				geneID = typeToEntity['gene'].entityID
 			
 				v = typeToEntity['variant']
+				prob = relation.probability
 				#variant = (typeToEntity['variant'].externalID,typeToEntity['variant'].text,)
-				geneID2Variant[geneID].append(v)
+				geneID2Variant[geneID].append((v,prob))
 
 			for relation in doc.relations:
 				# IgnoreVariant as we deal with them seperately (above)
 				if relation.relationType == 'AssociatedVariant':
 					continue
+
+				#print(relation)
 
 				sentence = eID_to_sentence[relation.entityIDs[0]]
 				sentenceTextLower = sentence.text.lower()
@@ -206,7 +211,7 @@ def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cance
 
 				associatedVariants = []
 				if geneID in geneID2Variant:
-					for entity in list(geneID2Variant[geneID]):
+					for entity,prob in list(geneID2Variant[geneID]):
 						startPos,endPos = entity.position[0]
 						if entity.externalID.startswith('substitution|'):
 							normalizedTerm = 'substitution'
@@ -218,16 +223,21 @@ def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cance
 						tmp.append(normalizedTerm)
 						tmp.append(startPos - sentenceStart)
 						tmp.append(endPos - sentenceStart)
+						tmp.append(prob)
 						associatedVariants.append(tmp)
 				else:
-					blank = ['' for _ in range(5)]
+					blank = ['' for _ in range(6)]
 					associatedVariants.append(blank)
 					
 
 				for associatedVariant in associatedVariants:
 					m = doc.metadata
+					if not 'subsection' in m:
+						m['subsection'] = None
+
+					prob = relation.probability
 					combinedEntityData = entityData['cancer'] + entityData['gene'] + entityData['drug'] + associatedVariant
-					outData = [m["pmid"],m['title'],m["journal"],m["year"],m['section'],relType] + combinedEntityData + [sentence.text]
+					outData = [m['pmid'],m['title'],m['journal'],m['year'],m['month'],m['day'],m['section'],m['subsection'],relType,prob] + combinedEntityData + [sentence.text]
 					outLine = "\t".join(map(str,outData))
 					outF.write(outLine+"\n")
 

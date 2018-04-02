@@ -1,6 +1,6 @@
 name: CIViCmine
 version: 0.1
-url: https://github.com/jakelever/cancermine
+url: https://github.com/jakelever/civicmine
 resources:
    full:
       - PUBMED:
@@ -9,16 +9,19 @@ resources:
       - PMCOA:
          format: bioc
    test:
-      - PUBMED_CIVICMINE_TEST:
+      - PUBMED_CUSTOM:
+         pmids: 23056577
          format: bioc
          rename: PUBMED
-      - PMCOA_CIVICMINE_TEST:
+      - PMCOA_CUSTOM:
+         pmcids: 5617236
          format: bioc
          rename: PMCOA
 run:
    - python parseAndFindEntities.py --biocFile {IN:PUBMED/%} --filterTerms filterTerms.txt --wordlistPickle civicmine_terms.pickle --variantStopwords stopwords_variants.txt --outSentencesFilename {OUT:sentenceData/%.json}
    - python parseAndFindEntities.py --biocFile {IN:PMCOA/%} --filterTerms filterTerms.txt --wordlistPickle civicmine_terms.pickle --variantStopwords stopwords_variants.txt --outSentencesFilename {OUT:sentenceData/%.json}
-   - python applyModelsToSentences.py --sentenceFile {IN:sentenceData/%.json} --models models/Diagnostic.model,models/Predictive.model,models/Prognostic.model,models/Predisposing.model,models/AssociatedOmicEvent.model --filterTerms filterTerms.txt --genes terms_genes.txt --cancerTypes terms_cancer.txt --drugs terms_drugs.txt --omicEvents terms_omicevents.txt --wordlistPickle civicmine_terms.pickle --outData {OUT:final/%.tsv}
+   - python applyModelsToSentences.py --sentenceFile {IN:sentenceData/%.json} --models models/Diagnostic.model,models/Predictive.model,models/Prognostic.model,models/Predisposing.model,models/AssociatedVariant.model --filterTerms filterTerms.txt --genes terms_genes.txt --cancerTypes terms_cancer.txt --drugs terms_drugs.txt --variants terms_omicevents.txt --wordlistPickle civicmine_terms.pickle --outData {OUT:final/%.tsv}
    - find {IN:final} -type f | xargs cat | sort -u > {OUT:uniq.tsv}
-   - cat header.tsv {IN:uniq.tsv} > {OUT:civicmine.tsv}
+   - cat header.tsv {IN:uniq.tsv} > {OUT:civicmine_all.tsv}
+   - python filterCivicmine.py --inCivicmine {IN:civicmine_all.tsv} --outFiltered {OUT:civicmine_conservative.tsv}
 output: civicmine.tsv
