@@ -48,6 +48,34 @@ def wipeCandidateRelations(corpus):
 	corpus.candidateRelationsEntityCounts = set()
 	corpus.relationTypes = None
 
+headers = None
+def applyFinalFilter(row):
+	global headers
+
+	# Filter out incorrect output with some rules
+	if headers is None:
+		with open('header.tsv') as f:
+			headers = f.read().strip().split('\t')
+	assert len(row) == len(headers), "Number of columns in output data (%d) doesn't  match with header count (%d)" % (len(row),len(headers))
+
+	row = { h:v for h,v in zip(headers,row) }
+
+	# Check for the number of semicolons (suggesting a list)
+	if row['sentence'].count(';') > 5:
+		return False
+
+	if row['section'] == 'back':
+		return False
+
+	# Filter some erroneous variant associations for very common substitutions
+	expectedVariantAssociations = {'R399Q': 'XRCC1', 'R194W': 'XRCC1', 'T241M': 'XRCC3', 'V600E': 'BRAF', 'T790M': 'EGFR', 'L858R': 'EGFR'}
+	if row['variant_normalized'] == 'substitution':
+		substitution = row['variant_id'].split('|')[1]
+		if substitution in expectedVariantAssociations and not row['gene_normalized'] == expectedVariantAssociations[substitution]:
+			return False
+
+	return True
+
 def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cancerTypes,drugs,variants,outData):
 	print("%s : start" % now())
 
@@ -129,8 +157,6 @@ def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cance
 			# Skip if no relations are found
 			if len(doc.relations) == 0:
 				continue
-
-			print(doc.entities)
 
 			# Skip if there isn't an associated PMID
 			if not doc.metadata["pmid"]:
@@ -238,8 +264,9 @@ def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cance
 					prob = relation.probability
 					combinedEntityData = entityData['cancer'] + entityData['gene'] + entityData['drug'] + associatedVariant
 					outData = [m['pmid'],m['title'],m['journal'],m['year'],m['month'],m['day'],m['section'],m['subsection'],relType,prob] + combinedEntityData + [sentence.text]
-					outLine = "\t".join(map(str,outData))
-					outF.write(outLine+"\n")
+					if applyFinalFilter(outData):
+						outLine = "\t".join(map(str,outData))
+						outF.write(outLine+"\n")
 
 		timers['output'] += time.time() - startTime
 
