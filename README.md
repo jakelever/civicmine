@@ -1,11 +1,13 @@
 # CIViCmine
 
+<p>
 <a href="https://travis-ci.org/jakelever/civicmine">
   <img src="https://travis-ci.org/jakelever/civicmine.svg?branch=master" />
 </a>
 <a href="http://bionlp.bcgsc.ca/civicmine/">
   <img src="https://img.shields.io/badge/data-viewer-blue.svg" />
 </a>
+</p>
 
 This is a text mining project to assist curation in the [Clinical Interpretation of Variants in Cancer (CIViC) database](https://civicdb.org). CIViC catalogs information on diagnostic, predictive, predisposing and prognostic variants in cancer. This project aims to text mine this data from PubMed and Pubmed Central Open Access subset
 
