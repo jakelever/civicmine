@@ -1,5 +1,4 @@
 import argparse
-import csv
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser(description='Filter Civicmine for more conservative predictions')
@@ -10,25 +9,23 @@ if __name__ == '__main__':
 	thresholds = {'Driver':0.80, 'Oncogene': 0.76, 'Tumor_Suppressor': 0.92}
 
 	thresholds = {}
-	thresholds['AssociatedVariant'] = 0.6
-	thresholds['Diagnostic'] = 0.7
-	thresholds['Predictive' ] = 0.92
-	thresholds['Prognostic'] = 0.7
-	thresholds['Predisposing'] = 0.96
+	thresholds['AssociatedVariant'] = 0.7
+	thresholds['Diagnostic'] = 0.63
+	thresholds['Predictive' ] = 0.93
+	thresholds['Predisposing'] = 0.86
+	thresholds['Prognostic'] = 0.65
 
 	readCount,writeCount = 0,0
 	with open(args.inCivicmine,'r') as inF, open(args.outFiltered,'w') as outF:
-		inTSV = csv.reader(inF,delimiter='\t')
-		outTSV = csv.writer(outF,delimiter='\t')
-		
-		headers = next(inTSV, None)
-		outTSV.writerow(headers)
+		headers = inF.readline().strip('\n').split('\t')
+		outF.write("\t".join(headers) + "\n")
 
 		variantCols = [ i for i,h in enumerate(headers) if h.startswith('variant_') ]
 
 		seen = set()
 
-		for row in inTSV:
+		for line in inF:
+			row = line.strip('\n').split('\t')
 			rowDict = { h:v for h,v in zip(headers,row) }
 			evidencetype_prob = float(rowDict['evidencetype_prob'])
 			evidencetype = rowDict['evidencetype']
@@ -45,7 +42,7 @@ if __name__ == '__main__':
 
 				rowTuple = tuple(row)
 				if not rowTuple in seen:
-					outTSV.writerow(row)
+					outF.write("\t".join(row) + "\n")
 					writeCount += 1
 					seen.add(rowTuple)
 
