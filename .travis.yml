@@ -1,0 +1,9 @@
+language: python
+python:
+  - "3.6"
+install:
+  - pip install pubrunner
+  - pip install kindred
+  - python -m spacy download en
+script:
+   - pubrunner --defaultsettings --test .
