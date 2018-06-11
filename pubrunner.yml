@@ -3,12 +3,15 @@ version: 0.1
 url: https://github.com/jakelever/civicmine
 resources:
    full:
+      - BIOWORDLISTS
       - PUBMED:
          format: bioc
          removePMCOADuplicates: True
       - PMCOA:
          format: bioc
    test:
+      - BIOWORDLISTS_TEST:
+         rename: BIOWORDLISTS
       - PUBMED_CUSTOM:
          pmids: 23056577
          format: bioc
@@ -18,10 +21,12 @@ resources:
          format: bioc
          rename: PMCOA
 run:
-   - python parseAndFindEntities.py --biocFile {IN:PUBMED/%} --filterTerms filterTerms.txt --wordlistPickle civicmine_terms.pickle --variantStopwords stopwords_variants.txt --outSentencesFilename {OUT:sentenceData/%.json}
-   - python parseAndFindEntities.py --biocFile {IN:PMCOA/%} --filterTerms filterTerms.txt --wordlistPickle civicmine_terms.pickle --variantStopwords stopwords_variants.txt --outSentencesFilename {OUT:sentenceData/%.json}
-   - python applyModelsToSentences.py --sentenceFile {IN:sentenceData/%.json} --models models/Diagnostic.model,models/Predictive.model,models/Prognostic.model,models/Predisposing.model,models/AssociatedVariant.model --filterTerms filterTerms.txt --genes terms_genes.txt --cancerTypes terms_cancer.txt --drugs terms_drugs.txt --variants terms_omicevents.txt --wordlistPickle civicmine_terms.pickle --outData {OUT:final/%.tsv}
+   - python wordlistLoader.py --genes {IN:BIOWORDLISTS/terms_genes.tsv} --cancers {IN:BIOWORDLISTS/terms_cancers.tsv} --drugs {IN:BIOWORDLISTS/terms_drugs.tsv} --conflicting {IN:BIOWORDLISTS/terms_conflicting.tsv} --variants {IN:BIOWORDLISTS/terms_variants.tsv} --wordlistPickle {OUT:civicmine_terms.pickle}
+   - python parseAndFindEntities.py --biocFile {IN:PUBMED/%} --filterTerms filterTerms.txt --wordlistPickle {IN:civicmine_terms.pickle} --variantStopwords stopwords_variants.txt --outSentencesFilename {OUT:sentenceData/%.json}
+   - python parseAndFindEntities.py --biocFile {IN:PMCOA/%} --filterTerms filterTerms.txt --wordlistPickle {IN:civicmine_terms.pickle} --variantStopwords stopwords_variants.txt --outSentencesFilename {OUT:sentenceData/%.json}
+   - python applyModelsToSentences.py --sentenceFile {IN:sentenceData/%.json} --models models/Diagnostic.model,models/Predictive.model,models/Prognostic.model,models/Predisposing.model,models/AssociatedVariant.model --filterTerms filterTerms.txt --genes {IN:BIOWORDLISTS/terms_genes.tsv} --cancerTypes {IN:BIOWORDLISTS/terms_cancers.tsv} --drugs {IN:BIOWORDLISTS/terms_drugs.tsv} --variants {IN:BIOWORDLISTS/terms_variants.tsv} --wordlistPickle {IN:civicmine_terms.pickle} --outData {OUT:final/%.tsv}
    - find {IN:final} -type f | xargs cat | sort -u > {OUT:uniq.tsv}
    - cat header.tsv {IN:uniq.tsv} > {OUT:civicmine_all.tsv}
    - python filterCivicmine.py --inCivicmine {IN:civicmine_all.tsv} --outFiltered {OUT:civicmine_conservative.tsv}
-output: civicmine.tsv
+output: civicmine_conservative.tsv
+
