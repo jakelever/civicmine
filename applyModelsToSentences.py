@@ -88,7 +88,7 @@ def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cance
 	IDToTerm = {}
 	with codecs.open(genes,'r','utf-8') as f:
 		for line in f:
-			geneid,singleterm,_ = line.strip().split('\t')
+			geneid,singleterm,_,entrez_geneid = line.strip().split('\t')
 			IDToTerm[geneid] = singleterm
 
 	with codecs.open(cancerTypes,'r','utf-8') as f:
