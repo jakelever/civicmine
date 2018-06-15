@@ -86,10 +86,12 @@ def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cance
 			models[modelFilename] = pickle.load(f)
 
 	IDToTerm = {}
+	HugoToEntrez = defaultdict(lambda : "N/A")
 	with codecs.open(genes,'r','utf-8') as f:
 		for line in f:
 			geneid,singleterm,_,entrez_geneid = line.strip().split('\t')
 			IDToTerm[geneid] = singleterm
+			HugoToEntrez[geneid] = entrez_geneid
 
 	with codecs.open(cancerTypes,'r','utf-8') as f:
 		for line in f:
@@ -164,8 +166,8 @@ def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cance
 
 			eID_to_sentence = {}
 			for sentence in doc.sentences:
-				for eID in sentence.getEntityIDs():
-					eID_to_sentence[eID] = sentence
+				for entity,tokenIndices in sentence.entityAnnotations:
+					eID_to_sentence[entity.entityID] = sentence
 			eID_to_entity = doc.getEntityIDsToEntities()
 
 			geneID2Variant = defaultdict(list)
@@ -230,6 +232,10 @@ def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cance
 					tmp.append(entity.externalID)
 					tmp.append(entity.text)
 					tmp.append(normalizedTerm)
+	
+					if entity.entityType == 'gene':
+						tmp.append(HugoToEntrez[entity.externalID])
+
 					tmp.append(startPos - sentenceStart)
 					tmp.append(endPos - sentenceStart)
 
@@ -278,6 +284,7 @@ def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cance
 	
 	for section,sectiontime in timers.items():
 		print("%s\t%f" % (section,sectiontime))
+	print("%s\t%f" % ("applyModelsToSentences total", sum(timers.values())))
 
 
 if __name__ == '__main__':
