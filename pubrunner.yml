@@ -24,9 +24,9 @@ resources:
 run:
    - sh buildModels.sh
    - python wordlistLoader.py --genes {IN:BIOWORDLISTS/terms_genes.tsv} --cancers {IN:BIOWORDLISTS/terms_cancers.tsv} --drugs {IN:BIOWORDLISTS/terms_drugs.tsv} --conflicting {IN:BIOWORDLISTS/terms_conflicting.tsv} --variants {IN:BIOWORDLISTS/terms_variants.tsv} --wordlistPickle {OUT:civicmine_terms.pickle}
-   - python parseAndFindEntities.py --biocFile {IN:PUBMED/%} --filterTerms filterTerms.txt --wordlistPickle {IN:civicmine_terms.pickle} --variantStopwords stopwords_variants.txt --outSentencesFilename {OUT:sentenceData/%.json}
-   - python parseAndFindEntities.py --biocFile {IN:PMCOA/%} --filterTerms filterTerms.txt --wordlistPickle {IN:civicmine_terms.pickle} --variantStopwords stopwords_variants.txt --outSentencesFilename {OUT:sentenceData/%.json}
-   - python parseAndFindEntities.py --biocFile {IN:PMCAMC/%} --filterTerms filterTerms.txt --wordlistPickle {IN:civicmine_terms.pickle} --variantStopwords stopwords_variants.txt --outSentencesFilename {OUT:sentenceData/%.json}
+   - python findSentences.py --biocFile {IN:PUBMED/%} --filterTerms filterTerms.txt --wordlistPickle {IN:civicmine_terms.pickle} --variantStopwords stopwords_variants.txt --outSentencesFilename {OUT:sentenceData/%.json}
+   - python findSentences.py --biocFile {IN:PMCOA/%} --filterTerms filterTerms.txt --wordlistPickle {IN:civicmine_terms.pickle} --variantStopwords stopwords_variants.txt --outSentencesFilename {OUT:sentenceData/%.json}
+   - python findSentences.py --biocFile {IN:PMCAMC/%} --filterTerms filterTerms.txt --wordlistPickle {IN:civicmine_terms.pickle} --variantStopwords stopwords_variants.txt --outSentencesFilename {OUT:sentenceData/%.json}
    - python applyModelsToSentences.py --sentenceFile {IN:sentenceData/%.json} --models models/Diagnostic.model,models/Predictive.model,models/Prognostic.model,models/Predisposing.model,models/AssociatedVariant.model --filterTerms filterTerms.txt --genes {IN:BIOWORDLISTS/terms_genes.tsv} --cancerTypes {IN:BIOWORDLISTS/terms_cancers.tsv} --drugs {IN:BIOWORDLISTS/terms_drugs.tsv} --variants {IN:BIOWORDLISTS/terms_variants.tsv} --wordlistPickle {IN:civicmine_terms.pickle} --outData {OUT:final/%.tsv}
    - find {IN:final} -type f | xargs cat | sort -u > {OUT:uniq.tsv}
    - cat header.tsv {IN:uniq.tsv} > {OUT:civicmine_all.tsv}
