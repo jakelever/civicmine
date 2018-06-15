@@ -73,7 +73,7 @@ def parseAndFindEntities(biocFile,filterTermsFile,wordlistPickle,variantStopword
 				if not containsFilterTerm:
 					continue
 
-				entityTypesInSentence = sentence.entityIDToType.values()
+				entityTypesInSentence = set([ entity.entityType for entity,tokenIndices in sentence.entityAnnotations ])
 				foundCancer = 'cancer' in entityTypesInSentence
 				foundGene = 'gene' in entityTypesInSentence
 				foundVariant = 'variant' in entityTypesInSentence
@@ -96,9 +96,10 @@ def parseAndFindEntities(biocFile,filterTermsFile,wordlistPickle,variantStopword
 		json.dump(outSentences,f,indent=2)
 
 	print("%s : done" % now())
-	
+
 	for section,sectiontime in timers.items():
 		print("%s\t%f" % (section,sectiontime))
+	print("%s\t%f" % ("parseAndFindEntities total", sum(timers.values())))
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser(description='Finds relations in Pubmed file')
