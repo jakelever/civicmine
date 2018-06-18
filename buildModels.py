@@ -24,7 +24,7 @@ if __name__ == '__main__':
 	
 		for doc in trainCorpus.documents:
 			doc.relations = [ r for r in doc.relations if r.relationType == relationType ]
-			doc.relations = [ r for r in doc.relations if len(r.entityIDs) == len(entityTypes) ]
+			doc.relations = [ r for r in doc.relations if len(r.entities) == len(entityTypes) ]
 
 		print("  Doing training")
 		threshold = 0.5
