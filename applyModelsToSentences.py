@@ -164,11 +164,10 @@ def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cance
 			if not doc.metadata["pmid"]:
 				continue
 
-			eID_to_sentence = {}
+			entity_to_sentence = {}
 			for sentence in doc.sentences:
 				for entity,tokenIndices in sentence.entityAnnotations:
-					eID_to_sentence[entity.entityID] = sentence
-			eID_to_entity = doc.getEntityIDsToEntities()
+					entity_to_sentence[entity] = sentence
 
 			geneID2Variant = defaultdict(list)
 			for relation in doc.relations:
@@ -177,8 +176,7 @@ def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cance
 					continue
 
 				typeToEntity = {}
-				for eID in relation.entityIDs:
-					entity = eID_to_entity[eID]
+				for entity in relation.entities:
 					typeToEntity[entity.entityType] = entity
 
 				geneID = typeToEntity['gene'].entityID
@@ -195,7 +193,7 @@ def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cance
 
 				#print(relation)
 
-				sentence = eID_to_sentence[relation.entityIDs[0]]
+				sentence = entity_to_sentence[relation.entities[0]]
 				sentenceTextLower = sentence.text.lower()
 
 				hasFilterTerm = any( filterTerm in sentenceTextLower for filterTerm in filterTerms )
@@ -209,9 +207,7 @@ def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cance
 				relType = relation.relationType
 				entityData = {'cancer':['' for _ in range(5)], 'drug':['' for _ in range(5)], 'gene':['' for _ in range(5)] }
 				geneID = None
-				for eID in relation.entityIDs:
-					entity = eID_to_entity[eID]
-
+				for entity in relation.entities:
 					if entity.entityType == 'gene':
 						assert geneID is None, 'Relation should only contain a single gene'
 						geneID = entity.entityID
@@ -230,12 +226,11 @@ def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cance
 
 					tmp = []
 					tmp.append(entity.externalID)
-					tmp.append(entity.text)
-					tmp.append(normalizedTerm)
-	
 					if entity.entityType == 'gene':
 						tmp.append(HugoToEntrez[entity.externalID])
 
+					tmp.append(entity.text)
+					tmp.append(normalizedTerm)
 					tmp.append(startPos - sentenceStart)
 					tmp.append(endPos - sentenceStart)
 
