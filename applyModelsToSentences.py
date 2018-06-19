@@ -39,15 +39,6 @@ def normalizeMIRName(externalID):
 
 	return normalizedName
 
-def wipeCandidateRelations(corpus):
-	for doc in corpus.documents:
-		for s in doc.sentences:
-			s.candidateRelationsWithClasses = defaultdict(list)
-			s.candidateRelationsEntityCounts = set()
-			
-	corpus.candidateRelationsEntityCounts = set()
-	corpus.relationTypes = None
-
 headers = None
 def applyFinalFilter(row):
 	global headers
@@ -147,7 +138,6 @@ def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cance
 	with codecs.open(outData,'a','utf-8') as outF:
 		startTime = time.time()
 		for modelname,model in models.items():
-			wipeCandidateRelations(corpus)
 			model.predict(corpus)
 		timers['predicted'] += time.time() - startTime
 
