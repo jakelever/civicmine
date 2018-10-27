@@ -1,6 +1,7 @@
 name: CIViCmine
 version: 0.1
 url: https://github.com/jakelever/civicmine
+zenodo: 1472826
 resources:
    full:
       - BIOWORDLISTS

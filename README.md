@@ -7,6 +7,9 @@
 <a href="http://bionlp.bcgsc.ca/civicmine/">
   <img src="https://img.shields.io/badge/data-viewer-blue.svg" />
 </a>
+<a href="https://doi.org/10.5281/zenodo.1472826">
+   <img src="https://zenodo.org/badge/DOI/10.5281/zenodo.1472826.svg" />
+</a>
 </p>
 
 This is a text mining project to assist curation in the [Clinical Interpretation of Variants in Cancer (CIViC) database](https://civicdb.org). CIViC catalogs information on diagnostic, predictive, predisposing and prognostic variants in cancer. This project aims to text mine this data from PubMed and Pubmed Central Open Access subset
