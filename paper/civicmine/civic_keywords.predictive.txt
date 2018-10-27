@@ -1,0 +1,4 @@
+sensitiv
+resistance
+efficacy
+predict
