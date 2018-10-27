@@ -69,6 +69,10 @@ The three output files of CIViCmine is outlined below. You likely want **civicmi
 
 **civicmine\_unfiltered.tsv:** This is the raw output of the applyModelsToSentences.py script across all of PubMed, Pubmed Central Open Access and PubMed Central Author Manuscript Collection. It contains every predicted relation with a prediction score above 0.5. So this may contain many false positives. Each row contain information on the publication (e.g. journal, publication date, etc) along with the sentence and the specific cancer biomarker extracted (with HUGO, Entrez Gene and Disease Ontology IDs). This file is further processed to create the other two.
 
+## Shiny App
+
+The code in [shiny/](https://github.com/jakelever/civicmine/tree/master/shiny) is the Shiny code used for the [web viewer](http://bionlp.bcgsc.ca/civicmine/). If it is helpful, please use the code for your own projects. The list of dependencies is found at the top of the [app.R](https://github.com/jakelever/civicmine/blob/master/shiny/app.R) file.
+
 ## Paper
 
 The code to generate all the figures and text for the paper can be found in [paper/](https://github.com/jakelever/civicmine/tree/master/paper). This may be useful for generating an up-to-date version of the plots for a newer version of CIViCmine.
