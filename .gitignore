@@ -12,3 +12,5 @@ civicmine_sentences.tsv
 civicmine_collated.tsv
 gene_with_protein_product.txt
 nightly-ClinicalEvidenceSummaries.tsv
+
+.R*
