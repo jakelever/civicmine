@@ -3,54 +3,18 @@
 source('civicmine/dependencies.R')
 
 #setwd(".")
-civicmineFilename <- 'civicmine/civicmine_conservative.tsv'
+civicmineFilename <- 'civicmine/civicmine_collated.tsv'
 civicmineFilename <- normalizePath(civicmineFilename)
-
 civicmine <- read.table(civicmineFilename,header=T,sep='\t',quote='',comment.char='',encoding="UTF-8")
 
-civicmine <- civicmine[grep(";",civicmine$cancer_normalized,fixed=T,invert=T),]
-civicmine <- civicmine[grep(";",civicmine$gene_normalized,fixed=T,invert=T),]
-civicmine <- civicmine[grep(";",civicmine$drug_normalized,fixed=T,invert=T),]
-civicmine <- civicmine[grep("|",civicmine$gene_normalized,fixed=T,invert=T),]
-
-# Remove the entity location columns and unique the rows
-nonLocationColumns <- grep("(start|end)",colnames(civicmine),invert=T)
-civicmine <- civicmine[,nonLocationColumns]
-civicmine <- civicmine[!duplicated(civicmine),]
-
-###################
-# Extract variant #
-###################
-civicmine$variant_normalized <- as.character(civicmine$variant_normalized)
-civicmine[civicmine$variant_normalized=='','variant_normalized'] <- '[unknown]'
-
-civicmine$variant_withsub <- as.character(civicmine$variant_normalized)
-civicmine[civicmine$variant_normalized=='substitution','variant_withsub'] <- as.character(as.matrix(as.data.frame(civicmine[civicmine$variant_normalized=='substitution','variant_id'])))
-civicmine$variant_withsub <- as.factor(civicmine$variant_withsub)
-
-civicmine$variant_withcivic <- tolower(str_replace_all(civicmine$variant_withsub, fixed('substitution|'), ''))
-
-subs <- civicmine[civicmine$variant_normalized=='substitution',]
-specificSub <- data.frame(do.call('rbind', strsplit(as.character(subs$variant_id),'|',fixed=TRUE)))
-civicmine$variant_sub <- ''
-civicmine[civicmine$variant_normalized=='substitution','variant_sub'] <- as.character(specificSub$X2)
+civicmineSentencesFilename <- 'civicmine/civicmine_sentences.tsv'
+civicmineSentencesFilename <- normalizePath(civicmineSentencesFilename)
+civicmineSentences <- read.table(civicmineSentencesFilename,header=T,sep='\t',quote='',comment.char='',encoding="UTF-8")
 
 
-################
-# Map Gene IDs #
-################
-genemappingFilename <- 'civicmine/gene_with_protein_product.txt'
-genemapping <- read.table(genemappingFilename,header=T,sep='\t',quote='',comment.char='')
-rownames(genemapping) <- as.character(genemapping$hgnc_id)
-genemapping <- genemapping[,'entrez_id',drop=F]
-
-civicmine$gene_entrez_id <- genemapping[as.character(civicmine$gene_id),]
-
-#civicmine[civicmine$variant_normalized=='substitution','variant_withcivic'] <- 'mutation'
+civicmine$variant_withcivic <- tolower(str_replace_all(civicmine$variant_withsub, fixed(' (substitution)'), ''))
 civicmine$combined <- paste(civicmine$evidencetype,civicmine$gene_entrez_id,gsub("DOID:","",civicmine$cancer_id),civicmine$drug_normalized,civicmine$variant_withcivic,sep='_')
 
-
-civicmineEntrezMapped <- civicmine[!is.na(civicmine$gene_entrez_id),]
 
 ################
 # Load CIViCdb #
@@ -75,15 +39,10 @@ civicdb$variant <- tolower(civicdb$variant)
 civicdb$combined <- paste(civicdb$evidence_type,civicdb$entrez_id,civicdb$doid,civicdb$drugs,civicdb$variant,sep='_')
 
 paper.civicCount <- length(unique(civicdb$combined))
-paper.biomarkerCountEntrezMapped <- length(unique(civicmineEntrezMapped$combined))
-
 paper.civicCount <- prettyNum(paper.civicCount,big.mark=",")
-paper.biomarkerCountEntrezMapped <- prettyNum(paper.biomarkerCountEntrezMapped,big.mark=",")
-
-
 
 biomarkerComparisonPlot <- venn.diagram(
-  x = list(CIViC=unique(civicdb$combined) , CIViCmine=unique(civicmineEntrezMapped$combined) ),
+  x = list(CIViC=unique(civicdb$combined) , CIViCmine=unique(civicmine$combined) ),
   scaled=F,
   fill = c("grey", "white"),
   cat.fontface = 2,
@@ -92,7 +51,7 @@ biomarkerComparisonPlot <- venn.diagram(
 biomarkerComparisonPlot <- gTree(children=biomarkerComparisonPlot)
 
 pmidComparisonPlot <- venn.diagram(
-  x = list(CIViC=unique(as.character(civicdb$pubmed_id)) , CIViCmine=unique(as.character(civicmine$pmid)) ),
+  x = list(CIViC=unique(as.character(civicdb$pubmed_id)) , CIViCmine=unique(as.character(civicmineSentences$pmid)) ),
   scaled=F,
   fill = c("grey", "white"),
   cat.fontface = 2,
@@ -101,7 +60,7 @@ pmidComparisonPlot <- venn.diagram(
 pmidComparisonPlot <- gTree(children=pmidComparisonPlot)
 
 paper.pmidsInCIViC <- length(unique(as.character(civicdb$pubmed_id)))
-paper.pmidsInBoth <- length(intersect(unique(as.character(civicdb$pubmed_id)),unique(as.character(civicmine$pmid))))
+paper.pmidsInBoth <- length(intersect(unique(as.character(civicdb$pubmed_id)),unique(as.character(civicmineSentences$pmid))))
 
 paper.pmidsInCIViC <- prettyNum(paper.pmidsInCIViC,big.mark=",")
 paper.pmidsInBoth <- prettyNum(paper.pmidsInBoth,big.mark=",")
@@ -124,7 +83,7 @@ pmidComparisonPlot <- grid.arrange(pmidComparisonPlot,top='(b)')
 fig_comparisons <- arrangeGrob(biomarkerComparisonPlot,pmidComparisonPlot,nrow=1)
 grid.arrange(fig_comparisons)
 
-paper.novelGeneCount <- length(setdiff(unique(civicmineEntrezMapped$gene_entrez_id),unique(civicdb$entrez_id)))
+paper.novelGeneCount <- length(setdiff(unique(civicmine$gene_entrez_id),unique(civicdb$entrez_id)))
 paper.novelCancerCount <- length(setdiff(unique(gsub("DOID:","",civicmine$cancer_id)),unique(civicdb$doid)))
 paper.novelDrugCount <- length(setdiff(unique(civicmine$drug_normalized),unique(civicdb$drugs)))
 

@@ -1,0 +1,216 @@
+evidencetype	gene_hugo_id	gene_entrez_id	gene_normalized	cancer_id	cancer_normalized	drug_id	drug	variant_group	variant_withsub	citation_count	in_civic	correct	usable	needed	comment
+Diagnostic	HGNC:6407	3845	KRAS	DOID:9256	colorectal cancer			mutation	mutation	48	No	maybe	maybe	probably	"25568935  ""KRAS mutation assays are important companion diagnostic tests to guide the use of anti-EGFR antibody treatment of metastatic colorectal cancer"". They are used for diagnosng subsets within colorectal cancer."
+Diagnostic	HGNC:7323	10801	SEPT9	DOID:9256	colorectal cancer			methylation	methylation	32	No	yes	yes	maybe	29849824 diagnostic valuce of circulating mSEPT9
+Diagnostic	HGNC:1097	673	BRAF	DOID:9256	colorectal cancer			mutation	mutation	27	No	yes	maybe	yes	see ref 43 and 44 in this review.
+Diagnostic	HGNC:5382	3417	IDH1	DOID:3070	malignant glioma			mutation	mutation	26	No	yes	yes	yes	29098416 This has found something very useful here I think
+Diagnostic	HGNC:6407	3845	KRAS	DOID:1793	pancreatic cancer			mutation	mutation	24	No	yes	yes	yes	27974679 This also looks like an important addition
+Diagnostic	HGNC:3236	1956	EGFR	DOID:3908	non-small cell lung carcinoma			mutation	mutation	23	No	yes	yes	yes	"26893581, 29765524 both look promising"
+Diagnostic	HGNC:12858	7535	ZAP70	DOID:1040	chronic lymphocytic leukemia			expression	expression	23	No	yes	yes	yes	19253275 indiates diagnostic result
+Diagnostic	HGNC:5382	3417	IDH1	DOID:3068	glioblastoma multiforme			mutation	mutation	19	No	yes	yes	yes	21199773 seems to make a clear diagnostic statement
+Diagnostic	HGNC:7059	4255	MGMT	DOID:3068	glioblastoma multiforme			promoter methylation	promoter methylation	18	No	yes	yes	yes	"27688263, 27503138, 25418065, 22102081 "
+Diagnostic	HGNC:6192	3717	JAK2	DOID:2224	essential thrombocythemia			substitution	substitution|V617F	17	No	yes	yes	yes	"25624900 clinical level evidence, 2 stars"
+Diagnostic	HGNC:1101	675	BRCA2	DOID:2394	ovarian cancer			mutation	mutation	17	No	no	maybe	maybe	"not diagnostic, evidence about risk"
+Diagnostic	HGNC:1100	672	BRCA1	DOID:2394	ovarian cancer			mutation	mutation	16	No	no	maybe	maybe	noconvincing diagnostic evidence statements
+Diagnostic	HGNC:1667	952	CD38	DOID:1040	chronic lymphocytic leukemia			expression	expression	15	No	no	maybe	maybe	17107912 potentiall useable evidence but all prognostic.
+Diagnostic	HGNC:6192	3717	JAK2	DOID:4971	myelofibrosis			substitution	substitution|V617F	14	No	yes	yes	yes	29383013
+Diagnostic	HGNC:6192	3717	JAK2	DOID:2226	myeloproliferative neoplasm			substitution	substitution|V617F	14	No	yes	yes	yes	24022702
+Diagnostic	HGNC:6192	3717	JAK2	DOID:2224	essential thrombocythemia			mutation	mutation	14	No	yes	yes	yes	26126599
+Diagnostic	HGNC:1097	673	BRAF	DOID:9256	colorectal cancer			substitution	substitution|V600E	14	No	yes	yes	yes	"19213871, 26042813"
+Diagnostic	HGNC:10777	6423	SFRP2	DOID:9256	colorectal cancer			methylation	methylation	14	No	yes	yes	yes	27799515
+Diagnostic	HGNC:7059	4255	MGMT	DOID:3068	glioblastoma multiforme			methylation	methylation	13	No	yes	yes	yes	29844679
+Diagnostic	HGNC:11998	7157	TP53	DOID:1040	chronic lymphocytic leukemia			mutation	mutation	13	No	no	maybe	maybe	all evidence was prognostic
+Diagnostic	HGNC:6407	3845	KRAS	DOID:9256	colorectal cancer			[unknown]		12	No	N/A	N/A	N/A	
+Diagnostic	HGNC:3430	2064	ERBB2	DOID:1612	breast cancer			expression	expression	12	No	yes	maybe	maybe	This is covered by out overexpression variant
+Diagnostic	HGNC:3236	1956	EGFR	DOID:9256	colorectal cancer			[unknown]		12	No	N/A	N/A	N/A	
+Diagnostic	HGNC:7059	4255	MGMT	DOID:3070	malignant glioma			methylation	methylation	11	No	yes	yes	yes	29100349
+Diagnostic	HGNC:1817	1048	CEACAM5	DOID:9256	colorectal cancer			[unknown]		11	No	N/A	N/A	N/A	
+Diagnostic	HGNC:15939	10406	WFDC2	DOID:2394	ovarian cancer			[unknown]		11	No	N/A	N/A	N/A	
+Diagnostic	HGNC:11998	7157	TP53	DOID:4001	ovarian carcinoma			expression	expression	11	No	yes	yes	yes	"27902476, 27572321"
+Diagnostic	HGNC:8975	5290	PIK3CA	DOID:9256	colorectal cancer			mutation	mutation	10	No	no	yes	yes	mostly predictive evidence for asprin
+Diagnostic	HGNC:6192	3717	JAK2	DOID:2226	myeloproliferative neoplasm			mutation	mutation	10	No	yes	yes	yes	20728437
+Diagnostic	HGNC:4638	2950	GSTP1	DOID:10283	prostate cancer			methylation	methylation	10	No	yes	yes	yes	27308330
+Diagnostic	HGNC:1787	1029	CDKN2A	DOID:8557	oropharynx cancer			expression	expression	10	No	maybe	maybe	yes	"20423915 surrogate marker for HPV, used in staging, which is related to diagnosis, and something we should further consider."
+Diagnostic	HGNC:7127	4292	MLH1	DOID:9256	colorectal cancer			methylation	methylation	9	No	yes	yes	yes	"26110029, 26042813"
+Diagnostic	HGNC:7059	4255	MGMT	DOID:3070	malignant glioma			promoter methylation	promoter methylation	9	No	yes	maybe	yes	this is most likely equivalent to the above MGMT glioma evidence
+Diagnostic	HGNC:6192	3717	JAK2	DOID:4971	myelofibrosis			mutation	mutation	9	No	yes	yes	yes	25885131
+Diagnostic	HGNC:12692	7431	VIM	DOID:9256	colorectal cancer			methylation	methylation	9	No	yes	yes	yes	"24178577 This brings up an important question of the clinical term DETECTION, which is related to diagnosis but not equivalent."
+Diagnostic	HGNC:11998	7157	TP53	DOID:9256	colorectal cancer			expression	expression	9	No	yes	yes	yes	25076849 distinction between CRC and UC
+Diagnostic	HGNC:11998	7157	TP53	DOID:684	hepatocellular carcinoma			mutation	mutation	9	No	yes	yes	yes	12679912
+Diagnostic	HGNC:1097	673	BRAF	DOID:8923	skin melanoma			mutation	mutation	9	No	no	maybe	maybe	there was noclear diagnostic evidence specifically for this disease
+Diagnostic	HGNC:3430	2064	ERBB2	DOID:10534	stomach cancer			expression	expression	8	No	no	maybe	maybe	one evidence statement seems to indicate potential diagnostic relevance but does not pan out.
+Diagnostic	HGNC:15451	51280	GOLM1	DOID:684	hepatocellular carcinoma			[unknown]		8	No	N/A	N/A	N/A	
+Diagnostic	HGNC:11998	7157	TP53	DOID:10534	stomach cancer			expression	expression	8	No	no	maybe	maybe	prognostic evidence
+Diagnostic	mirna|miR-801	N/A	miR-801	DOID:684	hepatocellular carcinoma			[unknown]		7	No	N/A	N/A	N/A	
+Diagnostic	combo|HGNC:11876|HGNC:3446	N/A	TMPRSS2|ERG	DOID:10283	prostate cancer			fusion	fusion	7	No	yes	yes	yes	"27041928, 23515404, 24195515"
+Diagnostic	HGNC:9882	11186	RASSF1	DOID:684	hepatocellular carcinoma			methylation	methylation	7	No	yes	yes	yes	28951629
+Diagnostic	HGNC:9605	5743	PTGS2	DOID:9256	colorectal cancer			expression	expression	7	No	yes	yes	yes	23300952
+Diagnostic	HGNC:7656	4684	NCAM1	DOID:9119	acute myeloid leukemia			expression	expression	7	No	yes	maybe	yes	18333845. This relevance depends on AMP with t(8;21) as a distinct diagnosis. It does seem the lassifier got this right so I will call it correct
+Diagnostic	HGNC:583	324	APC	DOID:9256	colorectal cancer			methylation	methylation	7	No	yes	yes	yes	29435185
+Diagnostic	HGNC:4451	2719	GPC3	DOID:684	hepatocellular carcinoma			overexpression	overexpression	7	No	yes	yes	yes	24498024
+Diagnostic	HGNC:4451	2719	GPC3	DOID:684	hepatocellular carcinoma			[unknown]		7	No	N/A	N/A	N/A	
+Diagnostic	HGNC:3690	2261	FGFR3	DOID:11054	urinary bladder cancer			mutation	mutation	7	No	yes	maybe	yes	"22530128, 20824703 One of these seems to involve a multi variant type we will support in the future"
+Diagnostic	HGNC:1667	952	CD38	DOID:1040	chronic lymphocytic leukemia			[unknown]		7	No	N/A	N/A	N/A	
+Diagnostic	HGNC:12680	7422	VEGFA	DOID:9256	colorectal cancer			expression	expression	7	No	no	yes	maybe	all evidence was prognostic
+Diagnostic	HGNC:11998	7157	TP53	DOID:9256	colorectal cancer			mutation	mutation	7	No	yes	yes	yes	15312403
+Diagnostic	HGNC:11998	7157	TP53	DOID:9256	colorectal cancer			[unknown]		7	No	N/A	N/A	N/A	
+Diagnostic	HGNC:11998	7157	TP53	DOID:5520	head and neck squamous cell carcinoma			mutation	mutation	7	No	no	yes	maybe	all evidence was prognostic
+Diagnostic	HGNC:11255	6696	SPP1	DOID:684	hepatocellular carcinoma			[unknown]		7	No	N/A	N/A	N/A	
+Diagnostic	HGNC:1097	673	BRAF	DOID:9256	colorectal cancer			[unknown]		7	No	N/A	N/A	N/A	
+Diagnostic	mirna|miR-27a	N/A	miR-27a	DOID:684	hepatocellular carcinoma			[unknown]		6	No	N/A	N/A	N/A	
+Predictive	HGNC:3236	1956	EGFR	DOID:3908	non-small cell lung carcinoma	CUSTOM0004	tyrosine kinase inhibitors	mutation	mutation	169	No	yes	no		
+Predictive	HGNC:3236	1956	EGFR	DOID:3908	non-small cell lung carcinoma	CUSTOM0005	egfr tyrosine kinase inhibitors	mutation	mutation	135	No	yes	no		
+Predictive	HGNC:3236	1956	EGFR	DOID:1324	lung cancer	CUSTOM0004	tyrosine kinase inhibitors	mutation	mutation	78	No	yes	no		
+Predictive	HGNC:3236	1956	EGFR	DOID:3908	non-small cell lung carcinoma	CUSTOM0002	chemotherapy	mutation	mutation	71	No	yes	?		
+Predictive	HGNC:3430	2064	ERBB2	DOID:1612	breast cancer	Q412616	trastuzumab	overexpression	overexpression	45	No	yes	no		
+Predictive	HGNC:3236	1956	EGFR	DOID:3908	non-small cell lung carcinoma	CUSTOM0004	tyrosine kinase inhibitors	[unknown]		44	No	N/A	N/A	N/A	
+Predictive	HGNC:3236	1956	EGFR	DOID:1324	lung cancer	Q418369	erlotinib	mutation	mutation	40	No	yes	no		
+Predictive	HGNC:3236	1956	EGFR	DOID:1324	lung cancer	CUSTOM0005	egfr tyrosine kinase inhibitors	mutation	mutation	40	No	yes	no		
+Predictive	HGNC:3236	1956	EGFR	DOID:3908	non-small cell lung carcinoma	CUSTOM0004	tyrosine kinase inhibitors	gain of function	gain of function	30	No	yes	no		
+Predictive	HGNC:17635	29126	CD274	DOID:3908	non-small cell lung carcinoma	Q7041828	nivolumab	expression	expression	28	No	yes	yes		
+Predictive	combo|HGNC:1014|HGNC:76	N/A	BCR|ABL1	DOID:8552	chronic myeloid leukemia	Q177094	imatinib	mutation	mutation	26	No	yes	yes	yes	"This should be Tyrosine Kinase Domain mutation, in which case CIViC needs EIDs with this configuration. We do already have much information on this in CIViC regarding specific individual mutations."
+Predictive	HGNC:3236	1956	EGFR	DOID:3908	non-small cell lung carcinoma	CUSTOM0005	egfr tyrosine kinase inhibitors	gain of function	gain of function	26	No	yes	yes	no	
+Predictive	HGNC:3430	2064	ERBB2	DOID:1612	breast cancer	Q412616	trastuzumab	amplification	amplification	25	No	yes		no	
+Predictive	HGNC:3236	1956	EGFR	DOID:3910	lung adenocarcinoma	CUSTOM0004	tyrosine kinase inhibitors	mutation	mutation	25	No	yes			
+Predictive	HGNC:3430	2064	ERBB2	DOID:1612	breast cancer	Q412616	trastuzumab	[unknown]		24	No	N/A	N/A	N/A	
+Predictive	HGNC:3430	2064	ERBB2	DOID:1612	breast cancer	CUSTOM0002	chemotherapy	overexpression	overexpression	21	No	yes	yes	yes	could make a chemo resistance EID for this
+Predictive	HGNC:3236	1956	EGFR	DOID:3908	non-small cell lung carcinoma	inhibitor|HGNC:3236	EGFR inhibitor	mutation	mutation	21	No	yes		no	
+Predictive	HGNC:3236	1956	EGFR	DOID:3908	non-small cell lung carcinoma	CUSTOM0005	egfr tyrosine kinase inhibitors	[unknown]		21	No	N/A	N/A	N/A	
+Predictive	HGNC:3236	1956	EGFR	DOID:3908	non-small cell lung carcinoma	CUSTOM0002	chemotherapy	[unknown]		21	No	N/A	N/A	N/A	
+Predictive	HGNC:3236	1956	EGFR	DOID:1324	lung cancer	CUSTOM0002	chemotherapy	mutation	mutation	20	No	no	no	no	"yielded something of interest for the variant ""uncommon mutation"" (so the variant was not correctly identified). Otherwise this has yielded studies showing that TKI are better than chemo in the presence of EGFR mutation. This is not good for a CIViC EID since EGFR mutations are not resistant to chemo, it is just that TKI are better than chemo. "
+Predictive	HGNC:6407	3845	KRAS	DOID:3908	non-small cell lung carcinoma	CUSTOM0002	chemotherapy	mutation	mutation	19	No	yes	yes	yes	26775593
+Predictive	HGNC:3433	2067	ERCC1	DOID:3908	non-small cell lung carcinoma	CUSTOM0002	chemotherapy	expression	expression	19	No	yes	yes	yes	
+Predictive	HGNC:3430	2064	ERBB2	DOID:1612	breast cancer	Q412616	trastuzumab	expression	expression	19	No	yes	no	no	we use amplification and overexpression for this so expression was correctly identified in these sentences but we do not use it.
+Predictive	HGNC:6407	3845	KRAS	DOID:9256	colorectal cancer	CUSTOM0002	chemotherapy	mutation	mutation	18	No	yes	yes	yes	24205021
+Predictive	HGNC:17635	29126	CD274	DOID:3908	non-small cell lung carcinoma	Q420436	docetaxel anhydrous	expression	expression	18	No	no	no	no	Docetaxel is what is being compared against to show increased sensitivity of immune checkpoint inhibitors
+Predictive	combo|HGNC:1014|HGNC:76	N/A	BCR|ABL1	DOID:8552	chronic myeloid leukemia	CUSTOM0004	tyrosine kinase inhibitors	mutation	mutation	16	No	yes	no	no	"It would be nice if such generalized things (mutation, TKI) could be filtered out. Also here this should be TKD mutation, which we alreedy have. "
+Predictive	HGNC:3430	2064	ERBB2	DOID:1612	breast cancer	CUSTOM0002	chemotherapy	[unknown]		16	No	N/A	N/A	N/A	
+Predictive	HGNC:3236	1956	EGFR	DOID:3910	lung adenocarcinoma	CUSTOM0005	egfr tyrosine kinase inhibitors	mutation	mutation	14	No	yes	no	no	"certainly egfr TKI is becoming too specific in the name of a general drug, and not much use here for CIViC"
+Predictive	HGNC:3236	1956	EGFR	DOID:1324	lung cancer	CUSTOM0004	tyrosine kinase inhibitors	[unknown]		14	No	N/A	N/A	N/A	
+Predictive	HGNC:1097	673	BRAF	DOID:1909	melanoma	inhibitor|HGNC:1097	BRAF inhibitor	mutation	mutation	14	No	yes	no	no	another case of something that is correct in a general level but not of any use.
+Predictive	HGNC:7059	4255	MGMT	DOID:3068	glioblastoma multiforme	CUSTOM0002	chemotherapy	promoter methylation	promoter methylation	13	No	yes	yes	yes	we have EIDs for specific chemotherapy drugs but not generalized to chemo. Some of these Pubmed suggestions could be useful
+Predictive	HGNC:3236	1956	EGFR	DOID:1324	lung cancer	CUSTOM0004	tyrosine kinase inhibitors	gain of function	gain of function	13	No	yes	no	no	I believe gain of function works better as a variant group
+Predictive	HGNC:195	6868	ADAM17	DOID:684	hepatocellular carcinoma	Q5103213	chlorotrianisene	[unknown]		13	No	N/A	N/A	N/A	
+Predictive	HGNC:3236	1956	EGFR	DOID:3908	non-small cell lung carcinoma	CUSTOM0002	chemotherapy	gain of function	gain of function	12	No	yes	no	no	"same as above, I will probably move the current EID under that variant to the Mutation bucket variant."
+Predictive	HGNC:1100	672	BRCA1	DOID:1612	breast cancer	Q412178	tamoxifen	mutation	mutation	12	No	yes	yes	yes	
+Predictive	HGNC:6407	3845	KRAS	DOID:3908	non-small cell lung carcinoma	CUSTOM0005	egfr tyrosine kinase inhibitors	mutation	mutation	11	No	yes	yes	yes	26175928
+Predictive	HGNC:6407	3845	KRAS	DOID:3908	non-small cell lung carcinoma	CUSTOM0004	tyrosine kinase inhibitors	mutation	mutation	11	No	yes	yes	yes	"Nice find, I am surprised we lack EIDs on this and above"
+Predictive	HGNC:6407	3845	KRAS	DOID:219	colon cancer	Q420296	cetuximab	mutation	mutation	11	No	yes	yes	yes	16618717
+Predictive	HGNC:3433	2067	ERCC1	DOID:3908	non-small cell lung carcinoma	Q412415	cisplatin	expression	expression	11	No	yes	yes	yes	25944617
+Predictive	HGNC:3433	2067	ERCC1	DOID:1324	lung cancer	CUSTOM0002	chemotherapy	expression	expression	11	No	yes	yes	yes	kind of redundant with above
+Predictive	HGNC:3430	2064	ERBB2	DOID:1612	breast cancer	CUSTOM0002	chemotherapy	amplification	amplification	11	No	yes	yes	yes	16707747
+Predictive	HGNC:3236	1956	EGFR	DOID:1324	lung cancer	Q418369	erlotinib	[unknown]		11	No	N/A	N/A	N/A	
+Predictive	HGNC:17635	29126	CD274	DOID:3908	non-small cell lung carcinoma	CUSTOM0002	chemotherapy	expression	expression	11	No	yes	maybe	maybe	28977890
+Predictive	HGNC:1100	672	BRCA1	DOID:1612	breast cancer	CUSTOM0002	chemotherapy	mutation	mutation	11	No	yes	yes	yes	21264845
+Predictive	HGNC:7059	4255	MGMT	DOID:3068	glioblastoma multiforme	CUSTOM0003	radiation therapy	methylation	methylation	10	No	yes	yes	yes	27891063
+Predictive	HGNC:3236	1956	EGFR	DOID:1324	lung cancer	CUSTOM0002	chemotherapy	[unknown]		10	No	N/A	N/A	N/A	
+Predictive	HGNC:6407	3845	KRAS	DOID:3908	non-small cell lung carcinoma	Q420296	cetuximab	mutation	mutation	9	No	yes	yes	maybe	22904614
+Predictive	combo|HGNC:1014|HGNC:76	N/A	BCR|ABL1	DOID:1240	leukemia	Q177094	imatinib	mutation	mutation	8	No	yes	no	no	we usually use more specific forms of leukemia in my experience. So this is not that useful a combination.
+Predictive	HGNC:6407	3845	KRAS	DOID:3908	non-small cell lung carcinoma	Q417824	gefitinib	mutation	mutation	8	No	yes	yes	yes	18418018
+Predictive	HGNC:6407	3845	KRAS	DOID:1324	lung cancer	Q418369	erlotinib	mutation	mutation	8	No	yes	yes	yes	28938696
+Predictive	HGNC:3433	2067	ERCC1	DOID:3908	non-small cell lung carcinoma	CUSTOM0002	chemotherapy	overexpression	overexpression	8	No	yes	maybe	maybe	
+Predictive	HGNC:3430	2064	ERBB2	DOID:1612	breast cancer	Q412178	tamoxifen	overexpression	overexpression	8	No	yes	yes	yes	17636399
+Predictive	HGNC:3236	1956	EGFR	DOID:9256	colorectal cancer	CUSTOM0002	chemotherapy	[unknown]		8	No	N/A	N/A	N/A	
+Predictive	HGNC:3236	1956	EGFR	DOID:3908	non-small cell lung carcinoma	Q420296	cetuximab	overexpression	overexpression	8	No	yes	yes	yes	29246028
+Predictive	HGNC:3236	1956	EGFR	DOID:3908	non-small cell lung carcinoma	Q420296	cetuximab	expression	expression	8	No	yes	yes	yes	same as above
+Predictive	HGNC:3236	1956	EGFR	DOID:3908	non-small cell lung carcinoma	CUSTOM0005	egfr tyrosine kinase inhibitors	substitution	substitution|L858R	8	No	maybe	maybe	no	"This is extensively covered as L858R and various TKIs in specific and probably in general. Not sure what ""substitution | L858R"" is"
+Predictive	HGNC:3236	1956	EGFR	DOID:3908	non-small cell lung carcinoma	CUSTOM0002	chemotherapy	overexpression	overexpression	8	No	yes	yes	maybe	26474959
+Predictive	HGNC:3236	1956	EGFR	DOID:1324	lung cancer	inhibitor|HGNC:3236	EGFR inhibitor	mutation	mutation	8	No	yes	no	no	
+Predictive	HGNC:3236	1956	EGFR	DOID:1324	lung cancer	Q4688818	afatinib	mutation	mutation	8	No	yes	no	no	for this type of evidence we usually do not use lung cancer but more specific forms like NSCLC
+Predisposing	HGNC:1101	675	BRCA2	DOID:2394	ovarian cancer			mutation	mutation	236	No	yes	maybe	yes	a general question is if bucekt variants go well with the predisposing EID
+Predisposing	HGNC:795	472	ATM	DOID:1612	breast cancer			mutation	mutation	82	No	maybe	maybe	yes	"""mutation"" may not be the best variant here, they are called MCR1 variants and may be a well defined set and not a generalized mutation like the ""mutation"" bucket"
+Predisposing	HGNC:6929	4157	MC1R	DOID:1909	melanoma			mutation	mutation	61	No	yes	maybe	maybe	29263966
+Predisposing	HGNC:16627	11200	CHEK2	DOID:1612	breast cancer			mutation	mutation	58	No	yes	maybe	yes	
+Predisposing	HGNC:1101	675	BRCA2	DOID:2394	ovarian cancer			[unknown]		54	No	N/A	N/A	N/A	
+Predisposing	HGNC:26144	79728	PALB2	DOID:1612	breast cancer			mutation	mutation	53	No	yes	maybe	yes	28158555
+Predisposing	HGNC:1101	675	BRCA2	DOID:10283	prostate cancer			mutation	mutation	53	No	yes	maybe	yes	29301143
+Predisposing	HGNC:1101	675	BRCA2	DOID:2394	ovarian cancer			germline mutation	germline mutation	50	No	yes	no	no	we do not use a germline mutation variant.
+Predisposing	HGNC:1100	672	BRCA1	DOID:10283	prostate cancer			mutation	mutation	48	No	yes	maybe	yes	28946846
+Predisposing	HGNC:1787	1029	CDKN2A	DOID:1909	melanoma			mutation	mutation	43	No	yes	maybe	yes	28283772
+Predisposing	HGNC:7527	4595	MUTYH	DOID:9256	colorectal cancer			mutation	mutation	35	No	yes	maybe	yes	
+Predisposing	HGNC:1101	675	BRCA2	DOID:1793	pancreatic cancer			mutation	mutation	33	No	yes	maybe	yes	10433620
+Predisposing	HGNC:795	472	ATM	DOID:1612	breast cancer			[unknown]		30	No	N/A	N/A	N/A	
+Predisposing	HGNC:1101	675	BRCA2	DOID:2394	ovarian cancer			overexpression	overexpression	29	No	yes	maybe	yes	12677558
+Predisposing	HGNC:6081	3630	INS	DOID:1612	breast cancer			overexpression	overexpression	28	No	maybe	maybe	yes	circulating insulin as a predisposing variant is an interesting case
+Predisposing	HGNC:16627	11200	CHEK2	DOID:1612	breast cancer			[unknown]		26	No	N/A	N/A	N/A	
+Predisposing	combo|HGNC:1100|HGNC:1101	N/A	BRCA1|BRCA2	DOID:1612	breast cancer			mutation	mutation	23	No	no	maybe	no	gene is doubled for some reason
+Predisposing	HGNC:5464	3479	IGF1	DOID:1612	breast cancer			overexpression	overexpression	22	No	yes	maybe	yes	9593409
+Predisposing	HGNC:13633	9370	ADIPOQ	DOID:1612	breast cancer			underexpression	underexpression	22	No	maybe	maybe	yes	low circulating adiponectin as biomarker
+Predisposing	HGNC:12828	7515	XRCC1	DOID:1612	breast cancer			substitution	substitution|R399Q	22	No	yes	yes	yes	24606430
+Predisposing	HGNC:8125	4968	OGG1	DOID:1324	lung cancer			substitution	substitution|S326C	21	No	yes	yes	yes	"22126471, 21520032"
+Predisposing	HGNC:26144	79728	PALB2	DOID:1612	breast cancer			[unknown]		20	No	N/A	N/A	N/A	
+Predisposing	HGNC:2228	1312	COMT	DOID:1612	breast cancer			underexpression	underexpression	20	No	yes	maybe	yes	This is actually low activity COMT
+Predisposing	HGNC:7436	4524	MTHFR	DOID:1612	breast cancer			mutation	mutation	18	No	yes	maybe	yes	24639841
+Predisposing	HGNC:7127	4292	MLH1	DOID:9256	colorectal cancer			mutation	mutation	16	No	yes	maybe	yes	23264089
+Predisposing	HGNC:3689	2263	FGFR2	DOID:1612	breast cancer			mutation	mutation	16	No	yes	maybe	yes	29872343
+Predisposing	HGNC:1787	1029	CDKN2A	DOID:1793	pancreatic cancer			mutation	mutation	16	No	yes	maybe	yes	17047042
+Predisposing	HGNC:13633	9370	ADIPOQ	DOID:1612	breast cancer			overexpression	overexpression	16	No	maybe	maybe	yes	high adiponectin blood levels
+Predisposing	HGNC:3689	2263	FGFR2	DOID:1612	breast cancer			[unknown]		15	No	N/A	N/A	N/A	
+Predisposing	HGNC:3467	2099	ESR1	DOID:1612	breast cancer			mutation	mutation	15	No	yes	maybe	yes	
+Predisposing	HGNC:3467	2099	ESR1	DOID:1612	breast cancer			[unknown]		15	No	N/A	N/A	N/A	
+Predisposing	HGNC:2595	1543	CYP1A1	DOID:1324	lung cancer			mutation	mutation	15	No	yes	maybe	yes	
+Predisposing	HGNC:12828	7515	XRCC1	DOID:1324	lung cancer			substitution	substitution|R399Q	15	No	yes	yes	yes	
+Predisposing	HGNC:7436	4524	MTHFR	DOID:1612	breast cancer			[unknown]		14	No	N/A	N/A	N/A	
+Predisposing	HGNC:6553	3952	LEP	DOID:1612	breast cancer			overexpression	overexpression	14	No	maybe	maybe	yes	Leptin blood levels
+Predisposing	HGNC:4632	2944	GSTM1	DOID:1324	lung cancer			deletion	deletion	14	No	yes	yes	yes	25797617
+Predisposing	HGNC:12828	7515	XRCC1	DOID:3070	malignant glioma			substitution	substitution|R399Q	14	No	yes	yes	yes	
+Predisposing	HGNC:1100	672	BRCA1	DOID:1793	pancreatic cancer			mutation	mutation	14	No	yes	maybe	yes	
+Predisposing	HGNC:9445	5617	PRL	DOID:1612	breast cancer			overexpression	overexpression	13	No	maybe	maybe	yes	circulating PRL
+Predisposing	HGNC:5208	3290	HSD11B1	DOID:1612	breast cancer			underexpression	underexpression	13	No	maybe	maybe	yes	serum HDL
+Predisposing	HGNC:4632	2944	GSTM1	DOID:1324	lung cancer			[unknown]		13	No	N/A	N/A	N/A	
+Predisposing	HGNC:26144	79728	PALB2	DOID:1793	pancreatic cancer			mutation	mutation	13	No	yes	maybe	yes	
+Predisposing	HGNC:1101	675	BRCA2	DOID:1614	male breast cancer			mutation	mutation	13	No	yes	maybe	yes	
+Predisposing	HGNC:7329	2956	MSH6	DOID:1380	endometrial cancer			mutation	mutation	12	No	yes	maybe	yes	
+Predisposing	HGNC:5464	3479	IGF1	DOID:10283	prostate cancer			overexpression	overexpression	12	No	maybe	maybe	yes	circulating IGF1
+Predisposing	HGNC:26144	79728	PALB2	DOID:1612	breast cancer			overexpression	overexpression	12	No	no	maybe	yes	none of the support sentences have overexpression variant in them
+Predisposing	HGNC:13633	9370	ADIPOQ	DOID:9256	colorectal cancer			underexpression	underexpression	12	No	maybe	maybe	yes	
+Predisposing	HGNC:1101	675	BRCA2	DOID:1793	pancreatic cancer			germline mutation	germline mutation	12	No	yes	maybe	yes	germline mutation is not nessecarily a useful variant
+Predisposing	HGNC:9588	5728	PTEN	DOID:1612	breast cancer			mutation	mutation	11	No	yes	maybe	yes	
+Predisposing	HGNC:7436	4524	MTHFR	DOID:9256	colorectal cancer			[unknown]		11	No	N/A	N/A	N/A	
+Predisposing	HGNC:6848	4214	MAP3K1	DOID:1612	breast cancer			[unknown]		11	No	N/A	N/A	N/A	
+Predisposing	HGNC:3434	2068	ERCC2	DOID:1324	lung cancer			substitution	substitution|K751Q	11	No	yes	yes	yes	24556168
+Predisposing	HGNC:3430	2064	ERBB2	DOID:1612	breast cancer			substitution	substitution|I655V	11	No	yes	yes	yes	25641872
+Predisposing	HGNC:3430	2064	ERBB2	DOID:1612	breast cancer			[unknown]		11	No	N/A	N/A	N/A	
+Predisposing	HGNC:12828	7515	XRCC1	DOID:1324	lung cancer			substitution	substitution|R194W	11	No	yes	yes	yes	26664136
+Predisposing	HGNC:11180	6648	SOD2	DOID:1612	breast cancer			[unknown]		11	No	N/A	N/A	N/A	
+Predisposing	HGNC:1101	675	BRCA2	DOID:10283	prostate cancer			[unknown]		11	No	N/A	N/A	N/A	
+Predisposing	HGNC:1100	672	BRCA1	DOID:9256	colorectal cancer			mutation	mutation	11	No	no	maybe	maybe	seemed everything was inconclusive
+Predisposing	HGNC:9820	5889	RAD51C	DOID:2394	ovarian cancer			mutation	mutation	10	No	yes	maybe	yes	
+Predisposing	HGNC:6929	4157	MC1R	DOID:4159	skin cancer			mutation	mutation	10	No	yes	maybe	yes	
+Predisposing	HGNC:6081	3630	INS	DOID:9256	colorectal cancer			overexpression	overexpression	10	No	yes	maybe	yes	high insulin blood levels
+Predisposing	HGNC:3434	2068	ERCC2	DOID:1324	lung cancer			mutation	mutation	10	No	yes	maybe	yes	16835333
+Predisposing	HGNC:26144	79728	PALB2	DOID:1612	breast cancer			loss of function	loss of function	10	No	yes	yes	yes	
+Prognostic	HGNC:12858	7535	ZAP70	DOID:1040	chronic lymphocytic leukemia			expression	expression	91	No	yes	yes	yes	
+Prognostic	HGNC:3236	1956	EGFR	DOID:1612	breast cancer			expression	expression	89	No	yes	maybe	no	overexpression is used for this evidence
+Prognostic	HGNC:1667	952	CD38	DOID:1040	chronic lymphocytic leukemia			expression	expression	80	No	yes	yes	yes	
+Prognostic	HGNC:5382	3417	IDH1	DOID:3070	malignant glioma			mutation	mutation	76	No	yes	yes	maybe	this depends on how important brain glioma vs malignant glioma distinction is
+Prognostic	HGNC:3236	1956	EGFR	DOID:9256	colorectal cancer			[unknown]		76	No	N/A	N/A	N/A	
+Prognostic	HGNC:3433	2067	ERCC1	DOID:3908	non-small cell lung carcinoma			expression	expression	71	No	yes	yes	yes	29200955
+Prognostic	HGNC:3236	1956	EGFR	DOID:1324	lung cancer			mutation	mutation	70	No	yes	yes	no	lung cancer too general a term
+Prognostic	HGNC:3430	2064	ERBB2	DOID:10534	stomach cancer			overexpression	overexpression	67	No	yes	yes	yes	
+Prognostic	HGNC:3236	1956	EGFR	DOID:1612	breast cancer			overexpression	overexpression	67	No	yes	yes	yes	
+Prognostic	HGNC:1100	672	BRCA1	DOID:1612	breast cancer			mutation	mutation	64	No	yes	yes	yes	surprised we don’t have this
+Prognostic	HGNC:3236	1956	EGFR	DOID:1612	breast cancer			[unknown]		57	No	N/A	N/A	N/A	
+Prognostic	HGNC:12680	7422	VEGFA	DOID:1612	breast cancer			expression	expression	57	No	yes	yes	yes	10735889
+Prognostic	HGNC:11998	7157	TP53	DOID:9256	colorectal cancer			mutation	mutation	55	No	yes	yes	yes	
+Prognostic	HGNC:3430	2064	ERBB2	DOID:10534	stomach cancer			expression	expression	52	No	yes	yes	yes	29321573
+Prognostic	HGNC:990	596	BCL2	DOID:1612	breast cancer			expression	expression	51	No	no	yes	yes	"this is for TN BC, not BC. While wrong, it points to something useable and needed"
+Prognostic	HGNC:9605	5743	PTGS2	DOID:9256	colorectal cancer			expression	expression	51	No	yes	yes	yes	26957558 mir21 and ptgs2; 20824502
+Prognostic	HGNC:12680	7422	VEGFA	DOID:3908	non-small cell lung carcinoma			expression	expression	51	No	yes	yes	yes	28241836
+Prognostic	HGNC:9605	5743	PTGS2	DOID:1612	breast cancer			expression	expression	47	No	yes	yes	yes	27999206 from some of the sentences I would expect overexpression to be a variant as well
+Prognostic	HGNC:12680	7422	VEGFA	DOID:10534	stomach cancer			expression	expression	47	No	yes	yes	yes	
+Prognostic	HGNC:9454	8842	PROM1	DOID:9256	colorectal cancer			expression	expression	46	No	yes	yes	yes	28523049
+Prognostic	HGNC:1748	999	CDH1	DOID:1612	breast cancer			expression	expression	46	No	yes	yes	yes	28750639
+Prognostic	HGNC:12680	7422	VEGFA	DOID:9256	colorectal cancer			expression	expression	42	No	maybe	yes	yes	lots of data but most seems to be for increased expression or overexpression type variant
+Prognostic	HGNC:12680	7422	VEGFA	DOID:3908	non-small cell lung carcinoma			overexpression	overexpression	42	No	yes	yes	yes	
+Prognostic	HGNC:11998	7157	TP53	DOID:684	hepatocellular carcinoma			mutation	mutation	42	No	yes	yes	yes	
+Prognostic	HGNC:402	216	ALDH1A1	DOID:1612	breast cancer			expression	expression	41	No	yes	yes	yes	
+Prognostic	HGNC:3236	1956	EGFR	DOID:9256	colorectal cancer			expression	expression	37	No	yes	yes	yes	29383110
+Prognostic	HGNC:11998	7157	TP53	DOID:9256	colorectal cancer			expression	expression	37	No	yes	yes	yes	26013439
+Prognostic	HGNC:593	332	BIRC5	DOID:1612	breast cancer			expression	expression	36	No	yes	yes	yes	28476037
+Prognostic	HGNC:5477	3492	IGH	DOID:1040	chronic lymphocytic leukemia			mutation	mutation	36	No	yes	yes	yes	26643954 This pertains to variable region of the IGH gene (IGHV)
+Prognostic	HGNC:12680	7422	VEGFA	DOID:1612	breast cancer			overexpression	overexpression	35	No	yes	yes	yes	
+Prognostic	HGNC:1817	1048	CEACAM5	DOID:9256	colorectal cancer			[unknown]		34	No	N/A	N/A	N/A	
+Prognostic	HGNC:12680	7422	VEGFA	DOID:1612	breast cancer			[unknown]		34	No	N/A	N/A	N/A	
+Prognostic	HGNC:7059	4255	MGMT	DOID:3070	malignant glioma			methylation	methylation	33	No	yes	yes	yes	29712977
+Prognostic	HGNC:3498	2122	MECOM	DOID:9119	acute myeloid leukemia			overexpression	overexpression	33	No	yes	yes	yes	29408852
+Prognostic	HGNC:3236	1956	EGFR	DOID:2394	ovarian cancer			overexpression	overexpression	33	No	yes	yes	yes	

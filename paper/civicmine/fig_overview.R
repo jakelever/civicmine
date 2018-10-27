@@ -2,39 +2,29 @@
 source('civicmine/dependencies.R')
 
 #setwd(".")
-civicmineFilename <- 'civicmine/civicmine_conservative.tsv'
+civicmineFilename <- 'civicmine/civicmine_collated.tsv'
 civicmineFilename <- normalizePath(civicmineFilename)
-
 civicmine <- read.table(civicmineFilename,header=T,sep='\t',quote='',comment.char='',encoding="UTF-8")
 
-civicmine <- civicmine[grep(";",civicmine$cancer_normalized,fixed=T,invert=T),]
-civicmine <- civicmine[grep(";",civicmine$gene_normalized,fixed=T,invert=T),]
-civicmine <- civicmine[grep(";",civicmine$drug_normalized,fixed=T,invert=T),]
-civicmine <- civicmine[grep("|",civicmine$gene_normalized,fixed=T,invert=T),]
+civicmineSentencesFilename <- 'civicmine/civicmine_sentences.tsv'
+civicmineSentencesFilename <- normalizePath(civicmineSentencesFilename)
+civicmineSentences <- read.table(civicmineSentencesFilename,header=T,sep='\t',quote='',comment.char='',encoding="UTF-8")
 
-# Remove the entity location columns and unique the rows
-nonLocationColumns <- grep("(start|end)",colnames(civicmine),invert=T)
-civicmine <- civicmine[,nonLocationColumns]
-civicmine <- civicmine[!duplicated(civicmine),]
 
-civicmineQuadsWithPublications <- civicmine[,c('pmid','evidencetype','cancer_normalized','gene_normalized','drug_normalized','variant_normalized')]
-civicmineQuadsWithPublications <- civicmineQuadsWithPublications[!duplicated(civicmineQuadsWithPublications),]
 
-civicmineQuadsWithCounts <- plyr::count(civicmineQuadsWithPublications[,c('evidencetype','cancer_normalized','gene_normalized','drug_normalized','variant_normalized')])
-
-paper.prognostic_erbb2_breastcancer <- civicmineQuadsWithCounts[civicmineQuadsWithCounts$evidencetype=='Prognostic' & civicmineQuadsWithCounts$cancer_normalized=='breast cancer' & civicmineQuadsWithCounts$gene_normalized=='ERBB2' & civicmineQuadsWithCounts$variant_normalized=='overexpression','freq']
-paper.predisposing_brca1_breastcancer_mutation <- civicmineQuadsWithCounts[civicmineQuadsWithCounts$evidencetype=='Predisposing' & civicmineQuadsWithCounts$cancer_normalized=='breast cancer' & civicmineQuadsWithCounts$gene_normalized=='BRCA1' & civicmineQuadsWithCounts$variant_normalized=='mutation','freq']
+paper.prognostic_erbb2_breastcancer <- civicmine[civicmine$evidencetype=='Prognostic' & civicmine$cancer_normalized=='breast cancer' & civicmine$gene_normalized=='ERBB2' & civicmine$variant_withsub=='overexpression','citation_count']
+paper.predisposing_brca1_breastcancer_mutation <- civicmine[civicmine$evidencetype=='Predisposing' & civicmine$cancer_normalized=='breast cancer' & civicmine$gene_normalized=='BRCA1' & civicmine$variant_group=='mutation','citation_count']
 
 paper.mentionCount <- nrow(civicmine)
-paper.paperCount <- length(unique(civicmine$pmid))
-paper.abstractCount <- length(unique(civicmine[civicmine$section=='abstract','pmid']))
-paper.articleCount <- length(unique(civicmine[civicmine$section=='article','pmid']))
-paper.biomarkerCount <- nrow(civicmineQuadsWithCounts)
-paper.cancerCount <- length(unique(civicmineQuadsWithPublications$cancer_normalized))
-paper.geneCount <- length(unique(civicmineQuadsWithPublications$gene_normalized))
-paper.drugCount <- length(unique(civicmineQuadsWithPublications$drug_normalized))
-paper.sentenceCount <- length(unique(civicmine$sentence))
-paper.multiCitationCount <- sum(civicmineQuadsWithCounts$freq==1)
+paper.paperCount <- length(unique(civicmineSentences$pmid))
+paper.abstractCount <- length(unique(civicmineSentences[civicmineSentences$section=='abstract','pmid']))
+paper.articleCount <- length(unique(civicmineSentences[civicmineSentences$section=='article','pmid']))
+paper.biomarkerCount <- nrow(civicmine)
+paper.cancerCount <- length(unique(civicmine$cancer_normalized))
+paper.geneCount <- length(unique(civicmine$gene_normalized))
+paper.drugCount <- length(unique(civicmine$drug_normalized))
+paper.sentenceCount <- length(unique(civicmineSentences$sentence))
+paper.multiCitationCount <- sum(civicmine$citation_count>1)
 paper.multiCitationPerc <- round(100*paper.multiCitationCount/paper.biomarkerCount,1)
 
 paper.mentionCount <- prettyNum(paper.mentionCount,big.mark=",")
