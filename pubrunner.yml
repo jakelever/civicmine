@@ -30,9 +30,9 @@ run:
    - python applyModelsToSentences.py --sentenceFile {IN:sentenceData/%.json} --models models/Diagnostic.model,models/Predictive.model,models/Prognostic.model,models/Predisposing.model,models/AssociatedVariant.model --filterTerms filterTerms.txt --genes {IN:BIOWORDLISTS/terms_genes.tsv} --cancerTypes {IN:BIOWORDLISTS/terms_cancers.tsv} --drugs {IN:BIOWORDLISTS/terms_drugs.tsv} --variants {IN:BIOWORDLISTS/terms_variants.tsv} --wordlistPickle {IN:civicmine_terms.pickle} --outData {OUT:final/%.tsv}
    - find {IN:final} -type f | xargs cat | sort -u > {OUT:uniq.tsv}
    - cat header.tsv {IN:uniq.tsv} > {OUT:civicmine_unfiltered.tsv}
-#   - python filterCivicmine.py --inCivicmine {IN:civicmine_all.tsv} --outFiltered {OUT:civicmine_conservative.tsv}
    - python filterAndCollate.py --inUnfiltered {IN:civicmine_unfiltered.tsv} --outSentences {OUT:civicmine_sentences.tsv} --outCollated {OUT:civicmine_collated.tsv}
 output:
+   - civicmine_unfiltered.tsv
    - civicmine_sentences.tsv
    - civicmine_collated.tsv
-
+output_description_file: output_description.md
