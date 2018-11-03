@@ -92,3 +92,5 @@ paper.novelCancerCount <- prettyNum(paper.novelCancerCount,big.mark=",")
 paper.novelDrugCount <- prettyNum(paper.novelDrugCount,big.mark=",")
 
 
+vennjunk <- dir(path=".", pattern="VennDiagram*") # ?dir
+removed <- file.remove(vennjunk) # ?file.remove
