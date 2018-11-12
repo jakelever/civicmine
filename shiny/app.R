@@ -79,9 +79,24 @@ ui <- function(req) {
                 tabPanel("Browse", 
                   sidebarPanel(
                                checkboxGroupInput("incivic_input", "In CIViC", c('Yes', 'No')),
-                               selectizeInput("gene_input", "Gene", c("",geneNames), selected = '', multiple = FALSE, options = list(maxOptions = 2*length(geneNames))),
-                               selectizeInput("cancer_input", "Cancer", c('', cancerNames), selected = '', multiple = FALSE, options = list(maxOptions = 2*length(cancerNames))),
-                               selectizeInput("drug_input", "Drug", c('', drugNames), selected = '', multiple = FALSE, options = list(maxOptions = 2*length(drugNames))),
+                               selectizeInput(inputId = "gene_input", 
+                                              label=p("Gene",actionLink("gene_clear", " (Clear)", style='font-size:70%')), 
+                                              choices = c('',geneNames), 
+                                              selected = '', 
+                                              multiple = FALSE, 
+                                              options = list(maxOptions = 2*length(geneNames))),
+                               selectizeInput(inputId = "cancer_input", 
+                                              label=p("Cancer",actionLink("cancer_clear", " (Clear)", style='font-size:70%')), 
+                                              choices = c('', cancerNames), 
+                                              selected = '', 
+                                              multiple = FALSE, 
+                                              options = list(maxOptions = 2*length(cancerNames))),
+                               selectizeInput(inputId="drug_input", 
+                                              label=p("Drug",actionLink("drug_clear", " (Clear)", style='font-size:70%')), 
+                                              choices=c('', drugNames), 
+                                              selected = '', 
+                                              multiple = FALSE, 
+                                              options = list(maxOptions = 2*length(drugNames))),
                                checkboxGroupInput('evidencetype_input', 'Evidence Type', choices = evidencetypes),
                                checkboxGroupInput('variant_input', 'Variant', choices = variantNames),
                                actionLink("selectall","Select All"),
@@ -418,7 +433,17 @@ server <- function(input, output, session) {
       write.table(entries, file, row.names = FALSE, sep='\t', quote=F)
     }
   )
+
   
+  observeEvent(input$gene_clear, {
+    updateSelectizeInput(session, "gene_input", selected = F)
+  })  
+  observeEvent(input$cancer_clear, {
+    updateSelectizeInput(session, "cancer_input", selected = F)
+  })  
+  observeEvent(input$drug_clear, {
+    updateSelectizeInput(session, "drug_input", selected = F)
+  })  
 }
 
 shinyApp(ui, server)
