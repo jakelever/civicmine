@@ -5,53 +5,58 @@ library(plyr)
 library(reshape2)
 
 data <- read.table('civicmine/evaluation_results.txt',header=T,sep='\t')
-
 data <- data[data$correct!='N/A',c('evidencetype','correct','usable','needed')]
-data$correct[data$correct==''] <- 'no'
-data$usable[data$usable==''] <- 'no'
-data$needed[data$needed==''] <- 'no'
-data$usable[data$usable=='?'] <- 'maybe'
-data$usable[data$usable=='probably'] <- 'maybe'
-data$needed[data$needed=='probably'] <- 'maybe'
+colnames(data) <- c('evidencetype','Correct','Usable','Needed')
 
-#barchart(freq ~ needed | evidencetype, summary)
+data$Correct[data$Correct==''] <- 'no'
+data$Usable[data$Usable==''] <- 'no'
+data$Needed[data$Needed==''] <- 'no'
+data$Usable[data$Usable=='?'] <- 'maybe'
+data$Usable[data$Usable=='probably'] <- 'maybe'
+data$Needed[data$Needed=='probably'] <- 'maybe'
 
-summary <- plyr::count(data[,c('evidencetype','correct')])
-wide <- dcast(summary, evidencetype ~ correct, value.var='freq', fill=0)
-wide$total <- wide$no + wide$maybe + wide$yes
-wide$no <- 100*wide$no / wide$total
-wide$maybe <- 100*wide$maybe / wide$total
-wide$yes <- 100*wide$yes / wide$total
-wide$metric <- 'correct'
-correct <- wide
+data$Correct <- revalue(data$Correct,c('no'='No','yes'='Yes','maybe'='Maybe'))
+data$Usable <- revalue(data$Usable,c('no'='No','yes'='Yes','maybe'='Maybe'))
+data$Needed <- revalue(data$Needed,c('no'='No','yes'='Yes','maybe'='Maybe'))
+
+#barchart(freq ~ Needed | evidencetype, summary)
+
+summary <- plyr::count(data[,c('evidencetype','Correct')])
+wide <- dcast(summary, evidencetype ~ Correct, value.var='freq', fill=0)
+wide$total <- wide$No + wide$Maybe + wide$Yes
+wide$No <- 100*wide$No / wide$total
+wide$Maybe <- 100*wide$Maybe / wide$total
+wide$Yes <- 100*wide$Yes / wide$total
+wide$metric <- 'Correct'
+Correct <- wide
 
 
-summary <- plyr::count(data[,c('evidencetype','usable')])
-wide <- dcast(summary, evidencetype ~ usable, value.var='freq', fill=0)
-wide$total <- wide$no + wide$maybe + wide$yes
-wide$no <- 100*wide$no / wide$total
-wide$maybe <- 100*wide$maybe / wide$total
-wide$yes <- 100*wide$yes / wide$total
-wide$metric <- 'usable'
-usable <- wide
+summary <- plyr::count(data[,c('evidencetype','Usable')])
+wide <- dcast(summary, evidencetype ~ Usable, value.var='freq', fill=0)
+wide$total <- wide$No + wide$Maybe + wide$Yes
+wide$No <- 100*wide$No / wide$total
+wide$Maybe <- 100*wide$Maybe / wide$total
+wide$Yes <- 100*wide$Yes / wide$total
+wide$metric <- 'Usable'
+Usable <- wide
 
-summary <- plyr::count(data[,c('evidencetype','needed')])
-wide <- dcast(summary, evidencetype ~ needed, value.var='freq', fill=0)
-wide$total <- wide$no + wide$maybe + wide$yes
-wide$no <- 100*wide$no / wide$total
-wide$maybe <- 100*wide$maybe / wide$total
-wide$yes <- 100*wide$yes / wide$total
-wide$metric <- 'needed'
-needed <- wide
+summary <- plyr::count(data[,c('evidencetype','Needed')])
+wide <- dcast(summary, evidencetype ~ Needed, value.var='freq', fill=0)
+wide$total <- wide$No + wide$Maybe + wide$Yes
+wide$No <- 100*wide$No / wide$total
+wide$Maybe <- 100*wide$Maybe / wide$total
+wide$Yes <- 100*wide$Yes / wide$total
+wide$metric <- 'Needed'
+Needed <- wide
 
-combined <- rbind(correct,usable,needed)
+combined <- rbind(Correct,Usable,Needed)
 
-combined$metric <- factor(combined$metric,c('correct','usable','needed'))
+combined$metric <- factor(combined$metric,c('Correct','Usable','Needed'))
 combined$evidencetype <- factor(combined$evidencetype,c('Predisposing','Prognostic','Diagnostic','Predictive'))
 
-combined$intermediate <- combined$maybe
+combined$Intermediate <- combined$Maybe
 
-fig_evaluationresults <- barchart(no + intermediate + yes ~ metric | evidencetype, combined, 
+fig_evaluationresults <- barchart(No + Intermediate + Yes ~ metric | evidencetype, combined, 
          stack=T, 
          auto.key=list(columns=3), 
          horizontal=F, 

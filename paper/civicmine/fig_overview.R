@@ -15,7 +15,7 @@ civicmineSentences <- read.table(civicmineSentencesFilename,header=T,sep='\t',qu
 paper.prognostic_erbb2_breastcancer <- civicmine[civicmine$evidencetype=='Prognostic' & civicmine$cancer_normalized=='breast cancer' & civicmine$gene_normalized=='ERBB2' & civicmine$variant_withsub=='overexpression','citation_count']
 paper.predisposing_brca1_breastcancer_mutation <- civicmine[civicmine$evidencetype=='Predisposing' & civicmine$cancer_normalized=='breast cancer' & civicmine$gene_normalized=='BRCA1' & civicmine$variant_group=='mutation','citation_count']
 
-paper.mentionCount <- nrow(civicmine)
+paper.mentionCount <- nrow(civicmineSentences)
 paper.paperCount <- length(unique(civicmineSentences$pmid))
 paper.abstractCount <- length(unique(civicmineSentences[civicmineSentences$section=='abstract','pmid']))
 paper.articleCount <- length(unique(civicmineSentences[civicmineSentences$section=='article','pmid']))

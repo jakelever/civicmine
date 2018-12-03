@@ -3,7 +3,7 @@ source('civicmine/dependencies.R')
 
 AssociatedVariant <- read.table('civicmine/prCurves/AssociatedVariant.txt',header=T)
 colnames(AssociatedVariant) <- c('threshold','precision','recall')
-AssociatedVariant$reltype <- 'AssociatedVariant'
+AssociatedVariant$reltype <- 'Associated Variant'
 
 Diagnostic <- read.table('civicmine/prCurves/Diagnostic.txt',header=T)
 colnames(Diagnostic) <- c('threshold','precision','recall')
@@ -25,7 +25,7 @@ data <- rbind(AssociatedVariant,Diagnostic,Predictive,Predisposing,Prognostic)
 data <- data[order(data$precision,decreasing=T),]
 data <- data[order(data$recall),]
 
-data$reltype <- factor(as.character(data$reltype),levels=c("Predisposing","Prognostic","AssociatedVariant","Diagnostic","Predictive"))
+data$reltype <- factor(as.character(data$reltype),levels=c("Predisposing","Prognostic","Associated Variant","Diagnostic","Predictive"))
 prcurvesPlot <- xyplot(precision ~ recall | reltype, 
        xlab="Recall", ylab="Precision",
        #xlim=c(0,1),ylim=c(0,1),
@@ -60,7 +60,7 @@ grid.arrange(fig_prcurves)
 
 targetMatching <- data
 targetMatching$target <- 0.9
-targetMatching[targetMatching$reltype=='AssociatedVariant','target'] <- 0.94
+targetMatching[targetMatching$reltype=='Associated Variant','target'] <- 0.94
 targetMatching$closeToTarget <- (targetMatching$precision-targetMatching$target)^2
 targetMatching <- targetMatching[order(targetMatching$closeToTarget),]
 
