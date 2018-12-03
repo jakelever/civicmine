@@ -55,7 +55,7 @@ pubrunner .
 
 ## Inputs
 
-The project uses wordlists from the [BioWordlists](https://github.com/jakelever/biowordlists) project for cancers, genes, drugs, variants and conflicting terms. The corpora used are PubMed abstracts and full-text papers from the PubMed Central Open Access Subset.
+The project uses wordlists from the [BioWordlists](https://github.com/jakelever/biowordlists) project for cancers, genes, drugs, variants and conflicting terms. The corpora used are PubMed abstracts and full-text papers from the PubMed Central Open Access Subset. While processing the full-text articles, subsection headers (e.g. Results) are also extracted to make it easier to locate where statements are made. The list of possible headers extracted can be found [here](https://github.com/jakelever/pubrunner/blob/master/subsectionHeaders.md). The actual extraction is managed by PubRunner.
 
 We have annotated 1500 sentences that comprise the civicmine_corpus which are used for training a Kindred classifier.
 
