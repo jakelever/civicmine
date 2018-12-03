@@ -1,0 +1,18 @@
+library(data.table)
+
+civicURL <- 'https://civicdb.org/downloads/nightly/nightly-ClinicalEvidenceSummaries.tsv'
+tempFilename <- 'nightly-ClinicalEvidenceSummaries.tsv.tmp'
+outFilename <- 'nightly-ClinicalEvidenceSummaries.tsv'
+
+download.file(civicURL, tempFilename, method='curl')
+
+expectedColumns <- c('pubmed_id','entrez_id','doid','drugs','evidence_type','variant')
+civicdb <- fread(tempFilename,sep='\t',header=T)
+
+foundColumns <- expectedColumns %in% colnames(civicdb)
+stopifnot(all(foundColumns)==T)
+stopifnot(nrow(civicdb) > 0)
+
+file.rename(tempFilename,outFilename)
+
+print("Success. Downloaded loadable version of CIViCdb")
