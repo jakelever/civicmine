@@ -70,6 +70,7 @@ ui <- function(req) {
   fluidPage(
     tags$head(
       includeHTML("google-analytics.js"),
+      includeHTML("metadata.html"),
       tags$style(".rightAlign{float:right; margin-left:5px; margin-bottom: 20px;}")
     ),
     titlePanel("",windowTitle="CIViCmine"),
