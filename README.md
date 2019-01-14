@@ -82,7 +82,19 @@ The code to generate all the figures and text for the paper can be found in [pap
 
 ## Citing
 
-A paper is in the works.
+The paper is now up at [bioRxiv](https://doi.org/10.1101/500686). It will be submitted to a journal in due course. It'd be wonderful if you would cite the paper if you use the methods or data set.
+
+```
+@article{lever2018civicmine,
+  title={Text-mining clinically relevant cancer biomarkers for curation into the CIViC database},
+  author={Lever, Jake and Jones, Martin R and Danos, Arpad M and Krysiak, Kilannin and Bonakdar, Melika and Grewal, Jasleen and Culibrk, Luka and Griffith, Obi L and Griffith, Malachi and Jones, Steven JM},
+  journal={bioRxiv},
+  pages={500686},
+  year={2018},
+  publisher={Cold Spring Harbor Laboratory}
+}
+
+```
 
 ## Issues
 
