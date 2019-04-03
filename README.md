@@ -80,6 +80,10 @@ The code in [shiny/](https://github.com/jakelever/civicmine/tree/master/shiny) i
 
 The code to generate all the figures and text for the paper can be found in [paper/](https://github.com/jakelever/civicmine/tree/master/paper). This may be useful for generating an up-to-date version of the plots for a newer version of CIViCmine.
 
+## Changelog
+
+- v6 data release: change to Kindred's EntityRecognizer uses strict string matching instead of token matching, so results are minorly different
+
 ## Citing
 
 The paper is now up at [bioRxiv](https://doi.org/10.1101/500686). It will be submitted to a journal in due course. It'd be wonderful if you would cite the paper if you use the methods or data set.

@@ -20,7 +20,7 @@ if __name__ == '__main__':
 	for relationType,threshold,entityTypes in relationInfo:
 		print("Building %s model" % relationType)
 		print("  Loading training")
-		trainCorpus = kindred.loadDir(dataFormat='standoff',directory=args.inTrain)
+		trainCorpus = kindred.load('standoff',args.inTrain)
 	
 		for doc in trainCorpus.documents:
 			doc.relations = [ r for r in doc.relations if r.relationType == relationType ]
