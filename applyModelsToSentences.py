@@ -124,7 +124,7 @@ def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cance
 
 	print("%s : loaded..." % now())
 	startTime = time.time()
-	parser = kindred.Parser()
+	parser = kindred.Parser(model='en_core_sci_sm')
 	parser.parse(corpus)
 	timers['parser'] += time.time() - startTime
 	print("%s : parsed" % now())

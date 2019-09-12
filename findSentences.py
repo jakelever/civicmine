@@ -41,7 +41,7 @@ def parseAndFindEntities(biocFile,filterTermsFile,wordlistPickle,variantStopword
 	duplicateCheck = set()
 
 	print("%s : processing..." % now())
-	parser = kindred.Parser()
+	parser = kindred.Parser(model='en_core_sci_sm')
 	ner = kindred.EntityRecognizer(lookup=termLookup,detectFusionGenes=True,detectMicroRNA=True,acronymDetectionForAmbiguity=True,mergeTerms=True,detectVariants=True,variantStopwords=variantStopwords)
 	for corpusno,corpus in enumerate(kindred.iterLoad('biocxml',biocFile)):
 		startTime = time.time()
