@@ -1,0 +1,25 @@
+name: CIViCmine
+version: 0.1
+url: https://github.com/jakelever/civicmine
+resources:
+   full:
+      - PUBMED:
+         format: bioc
+      - PMCOA:
+         format: bioc
+      - PMCAMC:
+         format: bioc
+   test:
+      - PUBMED_CUSTOM:
+         pmids: 27409839
+         format: bioc
+         rename: PUBMED
+      - PMCOA_CUSTOM:
+         pmcids: 5314405
+         format: bioc
+         rename: PMCOA
+run:
+   - python findFusions.py --biocFile {IN:PUBMED/%} --genes terms_genes.tsv --wordlistPickle {IN:civicmine_terms.pickle} --outFile {OUT:fusions/%.tsv}
+   - python findFusions.py --biocFile {IN:PMCOA/%} --genes terms_genes.tsv --wordlistPickle {IN:civicmine_terms.pickle} --outFile {OUT:fusions/%.tsv}
+   - python findFusions.py --biocFile {IN:PMCAMC/%} --genes terms_genes.tsv --wordlistPickle {IN:civicmine_terms.pickle} --outFile {OUT:fusions/%.tsv}
+

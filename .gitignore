@@ -16,3 +16,7 @@ gene_with_protein_product.txt
 nightly-ClinicalEvidenceSummaries.tsv
 
 .R*
+
+dbsnp_*
+oncoKB_*
+cgi_*
