@@ -5,7 +5,9 @@
 *.tsv
 *.json
 slurm-*
+
 models/
+dataForModels/
 
 civicmine_conservative.tsv
 civicmine_sentences.tsv
