@@ -28,7 +28,7 @@ collatedFilename <- normalizePath(collatedFilename)
 fileInfo <- file.info(collatedFilename)
 modifiedDate <- strsplit(as.character(fileInfo$mtime), ' ')[[1]][1]
 
-collated <- fread(collatedFilename,sep='\t',header=T,stringsAsFactors=T)
+collated <- fread(collatedFilename,sep='\t',header=T,stringsAsFactors=T,quote='')
 collated[collated$variant_group=='','variant_group'] <- '[unknown]'
 
 evidencetypes <- sort(unique(as.character(collated$evidencetype)))
@@ -52,7 +52,7 @@ collated$combined <- paste(collated$evidencetype,collated$gene_entrez_id,gsub("D
 
 collated$in_civic <- factor(collated$combined %in% civicdb$combined, labels=c("No","Yes"))
 
-sentences <- fread(sentencesFilename,sep='\t',header=T)
+sentences <- fread(sentencesFilename,sep='\t',header=T,quote='')
 sentences$pubmed_link <- paste("<a target=\"_blank\" href='https://www.ncbi.nlm.nih.gov/pubmed/", sentences$pmid, "'>", sentences$pmid, "</a>", sep='')
 sentences$paper_in_civic <- factor(sentences$pmid %in% civicdb$pubmed_id, labels=c("No","Yes"))
 
