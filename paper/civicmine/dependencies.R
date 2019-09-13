@@ -1,4 +1,4 @@
-library(plotly)
+#library(plotly)
 library(lattice)
 library(shiny)
 library(DT)

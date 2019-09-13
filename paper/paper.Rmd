@@ -15,7 +15,7 @@ output:
   bookdown::word_document2
 #  bookdown::pdf_document2
 bibliography: civicmine.bibtex
-csl: plos-computational-biology.csl
+csl: vancouver.csl
 ---
 
 
@@ -27,20 +27,31 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r civicmineFigures, echo=F}
 pdf(file="sideeffects.pdf")
-source('civicmine/fig_overview.R')
-#read_chunk('fig_annotationAndModel.R')
 source('civicmine/tab_keywords.R')
 source('civicmine/tab_interannotatoragreement.R')
+source('civicmine/fig_overview.R')
 source('civicmine/fig_prcurves.R')
 source('civicmine/fig_comparison.R')
 source('civicmine/fig_results.R')
 source('civicmine/fig_evaluationresults.R')
 invisible(dev.off())
+
 ```
 
 
 ## Abstract
-Precision oncology involves analysis of individual cancer samples to understand the genes and pathways involved in the development and progression of a cancer. To improve patient care, knowledge of diagnostic, prognostic, predisposing and drug response markers is essential. Several knowledgebases have been created by different groups to collate evidence for these associations. These include the open-access Clinical Interpretation of Variants in Cancer (CIViC) knowledgebase. These databases rely on time-consuming manual curation from skilled experts who read and interpret the relevant biomedical literature. To aid in this curation and provide the greatest coverage for these databases, particularly CIViC, we propose the use of text mining approaches to extract these clinically relevant biomarkers from all available published literature. To this end, a group of cancer genomics experts annotated biomarkers and their clinical associations discussed in 800 sentences and achieved good inter-annotator agreement. We then used a supervised learning approach to construct the CIViCmine knowledgebase (http://bionlp.bcgsc.ca/civicmine/), extracting `r paper.sentenceCount` relevant sentences from PubMed abstracts and Pubmed Central Open Access full text papers. CIViCmine contains over `r paper.biomarkerCount` biomarkers associated with `r paper.geneCount` genes, `r paper.drugCount` drugs and `r paper.cancerCount` cancer types, representing `r paper.abstractCount` abstracts and `r paper.articleCount` full-text publications. Through integration with CIVIC, we provide a prioritised list of curatable biomarkers as well as a resource that is valuable to other knowledgebases and precision cancer analysts in general.
+
+**Background**: Precision oncology involves analysis of individual cancer samples to understand the genes and pathways involved in the development and progression of a cancer. To improve patient care, knowledge of diagnostic, prognostic, predisposing and drug response markers is essential. Several knowledgebases have been created by different groups to collate evidence for these associations. These include the open-access Clinical Interpretation of Variants in Cancer (CIViC) knowledgebase. These databases rely on time-consuming manual curation from skilled experts who read and interpret the relevant biomedical literature. 
+
+**Methods**: To aid in this curation and provide the greatest coverage for these databases, particularly CIViC, we propose the use of text mining approaches to extract these clinically relevant biomarkers from all available published literature. To this end, a group of cancer genomics experts annotated biomarkers and their clinical associations discussed in 800 sentences and achieved good inter-annotator agreement. We then used a supervised learning approach to construct the CIViCmine knowledgebase (http://bionlp.bcgsc.ca/civicmine/)
+
+**Results**: We extracted `r paper.sentenceCount` relevant sentences from PubMed abstracts and Pubmed Central Open Access full text papers. CIViCmine contains over `r paper.biomarkerCount` biomarkers associated with `r paper.geneCount` genes, `r paper.drugCount` drugs and `r paper.cancerCount` cancer types, representing `r paper.abstractCount` abstracts and `r paper.articleCount` full-text publications. 
+
+**Conclusions**: Through integration with CIVIC, we provide a prioritised list of curatable clinically relevant cancer biomarkers as well as a resource that is valuable to other knowledgebases and precision cancer analysts in general. All data is publically available and distributed with a Creative Commons Zero license.
+
+## Keywords
+
+Precision oncology, text mining, information extraction, machine learning, cancer biomarkers
 
 ## Introduction
 
@@ -54,6 +65,10 @@ Diagnostic evidence items describe variants that can help a clinician diagnose o
 
 CIViC presents this information in a human-readable text format consisting of an ‘evidence statement’ such as the sentence describing the ABL1 T315I mutation above together with data in a structured, programmatically accessible format. A CIViC ‘evidence item’ includes this statement, ontology-associated disease name [@schriml2011disease], evidence type as defined above, drug (if applicable), PubMed ID and other structured fields. Evidence items are manually curated and associated in the database with a specific gene (defined by Entrez Gene) and variant (defined by the curator).
 
+The main objective of this project was to identify frequently discussed cancer biomarkers that fit the CIViC evidence model but are not yet included in the CIViC knowledgebase. We developed an information extraction-based method to extract key parts of the evidence item: cancer type, gene, drug (where applicable) and the specific evidence type from published literature. This allows us to count the number of mentions of specific evidence items in abstracts and full text articles and compare against the CIViC knowledgebase. This paper will present our methods to develop this resource, known as CIViCmine (http://bionlp.bcgsc.ca/civicmine/). The main contributions of this work are an approach for knowledgebase construction that could be applied to many areas of biology and medicine, a machine learning method for extracting complicated relationships between four entity types, and extraction of relationships across the largest possible publically-accessible set of abstracts and full text articles. This resource, containing `r paper.biomarkerCount` gene-cancer associations with clinical relevance, is valuable to all cancer knowledgebases to aid their curation and also as a tool for precision cancer analysts searching for evidence supporting biomarkers not yet included in any other resource.
+
+## Background
+
 Several groups have created knowledgebases to aid clinical interpretation of cancer genomes, many of whom have joined the Variant Interpretation for Cancer Consortium (VICC, http://cancervariants.org/) . VICC is an initiative that aims to coordinate variant interpretation efforts and, to this end, has created a federated search mechanism to allow easier analysis across multiple knowledgebases [@wagner2018harmonized]. The CIViC project is co-leading this effort along with OncoKB [@chakravarty2017oncokb], the Cancer Genome Interpreter [@tamborero2018cancer], Precision Medicine Knowledge base [@huang2017cancer], Molecular Match, JAX-Clinical Knowledge base [@patterson2016clinical] and others. 
 
 Most of these projects focus on clinically-relevant genomic events, particularly point mutations, and provide associated clinical information tiered by different levels of evidence. Only CIViC includes RNA expression-based biomarkers. These may be of particular value for childhood cancers which are known to be ‘genomically quiet’, having accrued very few somatic mutations. Consequently, their clinical interpretation may rely more heavily on transcriptomic data [@adamson2014drug]. Epigenomic biomarkers will also become more relevant as several cancer types are increasingly understood to be driven by epigenetic misregulation early in their development [@baylin2006epigenetic]. For example, methylation of the MGMT promoter is a well known biomarker in brain tumors for sensitivity to the standard treatment, temozolomide [@hegi2005mgmt].
@@ -62,9 +77,7 @@ The literature on clinically relevant cancer mutations is growing at an extraord
 
 Text mining methods have become a common approach to help prioritise literature curation. These methods fall broadly into two main categories, information retrieval (IR) and information extraction (IE). IR methods focus on paper-level information and can take multiple forms. Complex search queries for specific terms or paper metadata (helped by the MeSH term annotations of papers in biomedicine) are common tools for curators. More advanced document clustering and topic modelling systems can use semi-supervised methods to predict whether a paper would be relevant for curation. Examples of this approach include the document clustering method used for the ORegAnno project [@aerts2008text].
 
-IE methods extract structured knowledge directly from the papers. This can take the form of entity recognition, by explicitly tagging mentions of biomedical concepts such as genes, drugs and diseases. A further step can involve relation extraction to understand the relationship discussed between tagged biomedical entities. This structured information can then be used to identify papers relevant for the knowledgebase. IE methods are also used for automated knowledgebase population without a manual curation step. For example, the miRTex knowledgebase, which collates microRNAs and their targets, uses automated relation extraction methods to populate the knowledgebase [@li2015mirtex]. Protein-protein interaction networks (such as STRING [@szklarczyk2016string]) are often built using automatically generated knowledgebases.
-
-The main objective of this project was to identify frequently discussed cancer biomarkers that fit the CIViC evidence model but are not yet included in the CIViC knowledgebase. We developed an IE-based method to extract key parts of the evidence item: cancer type, gene, drug (where applicable) and the specific evidence type from published literature. This allows us to count the number of mentions of specific evidence items in abstracts and full text articles and compare against the CIViC knowledgebase. This paper will present our methods to develop this resource, known as CIViCmine (http://bionlp.bcgsc.ca/civicmine/). The main contributions of this work are an approach for knowledgebase construction that could be applied to many areas of biology and medicine, a machine learning method for extracting complicated relationships between four entity types, and extraction of relationships across the largest possible publically-accessible set of abstracts and full text articles. This resource, containing `r paper.biomarkerCount` gene-cancer associations with clinical relevance, is valuable to all cancer knowledgebases to aid their curation and also as a tool for precision cancer analysts searching for evidence supporting biomarkers not yet included in any other resource.
+IE methods extract structured knowledge directly from the papers. This can take the form of entity recognition, by explicitly tagging mentions of biomedical concepts such as genes, drugs and diseases. A further step can involve relation extraction to understand the relationship discussed between tagged biomedical entities. This structured information can then be used to identify papers relevant for the knowledgebase. IE methods are also used for automated knowledgebase population without a manual curation step. For example, the miRTex knowledgebase, which collates microRNAs and their targets, uses automated relation extraction methods to populate the knowledgebase [@li2015mirtex]. Protein-protein interaction networks (such as STRING [@szklarczyk2016string]) are often built using automatically generated knowledgebases. Our previous work has used information extraction methods to extract the role of genes in cancer but did not identify specific aberrations or the clinical relevance of them [@lever2019cancermine].
 
 ## Methods
 
@@ -103,16 +116,9 @@ Gene mentions that are likely associated with signalling pathways and not specif
 keywords <- read.table('civicmine/civic_keywords.table.tsv',sep='\t')
 colnames(keywords) <- c('General','Diagnostic','Predictive','Predisposing','Prognostic')
 
-#keywords %>%
-#  knitr::kable(
-#    "html",
-#    booktabs = TRUE, escape=FALSE,
-#    caption = 'The five groups of filter strings  used to identify sentences that potentially discussed the four evidence types. Strings such as "sensitiv" are used to capture multiple words including "sensitive" and "sensitivity".'
-#    ) %>%
-#  kable_styling()
 
 knitr::kable(
-    keywords,
+    keywords, 'pandoc',
     booktabs = TRUE, escape=FALSE,
     caption = 'The five groups of search terms used to identify sentences that potentially discussed the four evidence types  . Strings such as "sensitiv" are used to capture multiple words including "sensitive" and "sensitivity".'
     )
@@ -177,7 +183,7 @@ With the understanding that the annotated sentences were selected randomly from 
 traintest <- read.table('civicmine/traintest.tsv',header=T,sep='\t', stringsAsFactors=F)
 
 knitr::kable(
-  traintest,
+  traintest, 'pandoc',
   booktabs = TRUE, 
   caption = 'Number of annotations in the training and test sets',
   col.names = c('Annotation','Train', 'Test')
@@ -198,7 +204,7 @@ Figure \@ref(fig:civicmineprcurves)a shows precision recall curves for all five 
 
 ```{r performance, echo=F, eval=T}
 knitr::kable(
-  paper.performanceTable,
+  paper.performanceTable, 'pandoc',
   booktabs = TRUE, escape=FALSE,
   row.names=F,
   caption = 'The selected thresholds for each relation type with the high precision and lower recall trade-off.',
@@ -249,15 +255,14 @@ exampleSentences <- read.table('civicmine/exampleSentences.tsv',sep='\t',header=
 exampleSentences$Sentence <- gsub(";",'\n',exampleSentences$Sentence)
 exampleSentences$Evidence.Type <- as.character(exampleSentences$Evidence.Type)
 
-suppressWarnings(exampleSentences %>%
+exampleSentences %>%
   dplyr::mutate_all(linebreak) %>%
-  knitr::kable(
+  knitr::kable( 'pandoc',
     booktabs = TRUE, escape=FALSE,
     caption = 'Four example sentences for the four evidence types extracted by CIViCmine. The associated PubMed IDs are also shown for reference.',
     col.names = c('Type','PMID', 'Sentence'),
     row.names = NA
-    ) %>%
-  kable_styling())
+    )
 ```
 
 From the full PubMed corpus and all downloadable papers from PubMed Central, we extracted `r paper.biomarkerCount` biomarkers with a breakdown into the four types (Figure \@ref(fig:evidencetypes)). As expected, based on our preliminary analysis, there are many more prognostic evidence items than the other three types. Table \@ref(tab:examplesentences) outlines examples of all four of these evidence types. `r paper.percSentencesWithMultiple`% of sentences (`r paper.multiplePerSentence`/`r paper.sentenceCount`) contain more than one evidence item, such as the predictive example which relates *EGFR* as a predictive marker in NSCLC to both erlotinib and gefitinib. In total, we extracted `r paper.mentionCount` mentions of biomarkers from `r paper.paperCount`  unique papers. These biomarkers relate to `r paper.geneCount` genes, `r paper.cancerCount` cancer types and `r paper.drugCount` drugs.
@@ -323,8 +328,34 @@ A robust named entity recognition solution does not exist for a custom term list
 
 The CIViCmine app, accessible at http://bionlp.bcgsc.ca/civicmine, and freely accessible associated data provide a valuable addition to the precision oncology informatics community. CIViCmine can be used to assist curation of other precision cancer knowledgebases and can be used directly by precision cancer analysts to search for biomarkers of interest. As this resource will be updated monthly   with the latest research, it will constantly change as new cancer types and drug names enter the lexicon. We anticipate that the methods described can be used in other biomedical domains and that the resources provided will be valuable to the biomedical text mining and precision oncology fields.
 
-# Acknowledgements
+# Declarations
 
-CIViC is supported by the National Cancer Institute (NCI) of the National Institutes of Health (NIH) under award number U01CA209936. JL is supported by a Vanier Canada Graduate Scholarship. MG is supported by the NHGRI under award number R00HG007940.  
+## Ethics approval and consent to participate
+
+Not applicable
+
+## Consent for publication
+
+Not applicable
+
+## Availability of data and materials
+
+The complete datasets are available in the Zenodo repository (https://doi.org/10.5281/zenodo.1472826) with the June 2019 release used for this paper (http://doi.org/10.5281/zenodo.3239054). The data can also be viewed through the web viewer (http://bionlp.bcgsc.ca/civicmine/) and subsets of the data can be downloaded there. The code for the analysis and web viewer is available at GitHub (https://github.com/jakelever/civicmine/).
+
+## Competing interests
+
+The authors declare that they have no competing interests.
+
+## Funding
+
+CIViC is supported by the National Cancer Institute (NCI) of the National Institutes of Health (NIH) under award number U01CA209936. JL is supported by a Vanier Canada Graduate Scholarship. MG is supported by the NHGRI under award number R00HG007940.
+
+## Author Contributions
+
+JL, MRJ, OLG, MG and SJMJ developed the project idea. JL developed the methods, did the analyses and wrote the initial paper draft. JL, MRJ, AMD, KK, MB, JG, LC and MG annotated text data. OLG, MG and SJMJ supervised the project. All authors read and approved the final manuscript.
+
+## Acknowledgements
+
+The authors would like to thank Compute Canada for the use of compute infrastructure for this research.
 
 # References
