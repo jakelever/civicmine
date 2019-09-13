@@ -5,9 +5,7 @@
 *.tsv
 *.json
 slurm-*
-
 models/
-dataForModels/
 
 civicmine_conservative.tsv
 civicmine_sentences.tsv
@@ -15,8 +13,12 @@ civicmine_collated.tsv
 gene_with_protein_product.txt
 nightly-ClinicalEvidenceSummaries.tsv
 
-.R*
+/paper/_book/
+/paper/_bookdown_files/
+/paper/_main.*
+/paper/sideeffects.pdf
 
-dbsnp_*
-oncoKB_*
-cgi_*
+/shiny/google-analytics.js
+
+.R*
+civicmine.Rproj
