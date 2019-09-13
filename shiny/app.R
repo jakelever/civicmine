@@ -106,7 +106,8 @@ ui <- function(req) {
                                #verbatimTextOutput("gene_text")
                              ),
                    mainPanel(
-                     splitLayout(cellWidths = c("34%", "33%", "33%"), 
+                     HTML("<p></p>"),
+                     splitLayout(cellWidths = c("31%", "31%", "31%"), 
                                  plotlyOutput("gene_piechart"),
                                  plotlyOutput("cancer_piechart"),
                                  plotlyOutput("drug_piechart")),
@@ -239,6 +240,7 @@ server <- function(input, output, session) {
       sourceName <- paste('gene_piechart_',gene_event_val$count,sep='')
       p <- plot_ly(piecounts, labels = ~label, values = ~total_citation_count, type = 'pie', sort=FALSE, textinfo = 'label', textposition = 'inside', insidetextfont = list(color = '#FFFFFF'),source=sourceName) %>%
         layout(title = paste('Genes'),
+               showlegend = F,
                xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
                yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))%>% 
         config(displayModeBar = F)
@@ -293,6 +295,7 @@ server <- function(input, output, session) {
       sourceName <- paste('cancer_piechart_',cancer_event_val$count,sep='')
       p <- plot_ly(piecounts, labels = ~label, values = ~total_citation_count, type = 'pie', sort=FALSE, textinfo = 'label', textposition = 'inside', insidetextfont = list(color = '#FFFFFF'),source=sourceName) %>%
         layout(title = paste('Cancers'),
+               showlegend = F,
                xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
                yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))%>% 
         config(displayModeBar = F)
@@ -351,6 +354,7 @@ server <- function(input, output, session) {
       sourceName <- paste('drug_piechart_',drug_event_val$count,sep='')
       p <- plot_ly(piecounts, labels = ~label, values = ~total_citation_count, type = 'pie', sort=FALSE, textinfo = 'label', textposition = 'inside', insidetextfont = list(color = '#FFFFFF'),source=sourceName) %>%
         layout(title = paste('Drugs'),
+               showlegend = F,
                xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
                yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))%>% 
         config(displayModeBar = F)
