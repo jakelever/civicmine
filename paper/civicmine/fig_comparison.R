@@ -25,7 +25,11 @@ civicdb <- read.table(civicdbfilename,header=T,sep='\t',quote='',comment.char=''
 civicdbfileInfo <- file.info(civicdbfilename)
 paper.civicdbDate <- format(as.Date(civicdbfileInfo$mtime), format="%d %B %Y")
 
-civicdb <- civicdb[,c('pubmed_id','entrez_id','doid','drugs','evidence_type','variant')]
+
+
+civicdb <- civicdb[,c('source_type','citation_id','entrez_id','doid','drugs','evidence_type','variant')]
+civicdb$pubmed_id <- NA
+civicdb$pubmed_id[civicdb$source_type=='PubMed'] <- civicdb$citation_id[civicdb$source_type=='PubMed']
 civicdb$drugs <- tolower(civicdb$drugs)
 civicdb$variant <- tolower(civicdb$variant)
 
@@ -51,7 +55,8 @@ biomarkerComparisonPlot <- venn.diagram(
 biomarkerComparisonPlot <- gTree(children=biomarkerComparisonPlot)
 
 pmidComparisonPlot <- venn.diagram(
-  x = list(CIViC=unique(as.character(civicdb$pubmed_id)) , CIViCmine=unique(as.character(civicmineSentences$pmid)) ),
+  x = list(CIViC=unique(as.character(civicdb$pubmed_id[!is.na(civicdb$pubmed_id)])) , 
+           CIViCmine=unique(as.character(civicmineSentences$pmid)) ),
   scaled=F,
   fill = c("grey", "white"),
   cat.fontface = 2,
