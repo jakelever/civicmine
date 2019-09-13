@@ -28,7 +28,7 @@ if __name__ == '__main__':
 
 		print("  Doing training")
 		threshold = 0.5
-		classifier = kindred.RelationClassifier(classifierType='LogisticRegression',threshold=threshold,entityCount=len(entityTypes),acceptedEntityTypes=[entityTypes])
+		classifier = kindred.RelationClassifier(classifierType='LogisticRegression',threshold=threshold,entityCount=len(entityTypes),acceptedEntityTypes=[entityTypes],model='en_core_sci_sm')
 		classifier.train(trainCorpus)
 
 		print("  Saving classifer")
