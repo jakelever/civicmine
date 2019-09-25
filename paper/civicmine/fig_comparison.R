@@ -46,7 +46,7 @@ paper.civicCount <- length(unique(civicdb$combined))
 paper.civicCount <- prettyNum(paper.civicCount,big.mark=",")
 
 biomarkerComparisonPlot <- venn.diagram(
-  x = list(CIViC=unique(civicdb$combined) , CIViCmine=unique(civicmine$combined) ),
+  x = list("CIViC items"=unique(civicdb$combined) , "CIViCmine items"=unique(civicmine$combined) ),
   scaled=F,
   fill = c("grey", "white"),
   cat.fontface = 2,
@@ -55,8 +55,8 @@ biomarkerComparisonPlot <- venn.diagram(
 biomarkerComparisonPlot <- gTree(children=biomarkerComparisonPlot)
 
 pmidComparisonPlot <- venn.diagram(
-  x = list(CIViC=unique(as.character(civicdb$pubmed_id[!is.na(civicdb$pubmed_id)])) , 
-           CIViCmine=unique(as.character(civicmineSentences$pmid)) ),
+  x = list("CIViC PMIDs"=unique(as.character(civicdb$pubmed_id[!is.na(civicdb$pubmed_id)])) , 
+           "CIViCmine PMIDs"=unique(as.character(civicmineSentences$pmid)) ),
   scaled=F,
   fill = c("grey", "white"),
   cat.fontface = 2,
@@ -75,7 +75,7 @@ paper.pmidsInBoth <- prettyNum(paper.pmidsInBoth,big.mark=",")
 #upset(fromList(listInput), order.by = "freq")
 #grid.edit('arrange',name='arrange2')
 #biomarkerComparisonPlot <- grid.grab()
-biomarkerComparisonPlot <- grid.arrange(biomarkerComparisonPlot,top='(a)')
+#biomarkerComparisonPlot <- grid.arrange(biomarkerComparisonPlot,top='(a)')
 
 
 
@@ -83,7 +83,7 @@ biomarkerComparisonPlot <- grid.arrange(biomarkerComparisonPlot,top='(a)')
 #upset(fromList(listInput), order.by = "freq")
 #grid.edit('arrange',name='arrange2')
 #pmidComparisonPlot <- grid.grab()
-pmidComparisonPlot <- grid.arrange(pmidComparisonPlot,top='(b)')
+#pmidComparisonPlot <- grid.arrange(pmidComparisonPlot,top='(b)')
 
 fig_comparisons <- arrangeGrob(biomarkerComparisonPlot,pmidComparisonPlot,nrow=1)
 grid.arrange(fig_comparisons)
