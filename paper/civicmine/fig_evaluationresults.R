@@ -1,8 +1,5 @@
 
-library(lattice)
-library(dplyr)
-library(plyr)
-library(reshape2)
+source('civicmine/dependencies.R')
 
 data <- read.table('civicmine/evaluation_results.txt',header=T,sep='\t')
 data <- data[data$correct!='N/A',c('evidencetype','correct','usable','needed')]
@@ -56,10 +53,20 @@ combined$evidencetype <- factor(combined$evidencetype,c('Predisposing','Prognost
 
 combined$Intermediate <- combined$Maybe
 
+myColours <- brewer.pal(3,"RdYlBu")
+my.settings <- list(
+  superpose.polygon=list(col=myColours),
+  #strip.background=list(col=myColours),
+  superpose.line=list(col=myColours),
+  strip.border=list(col="black")
+)
+
+
 fig_evaluationresults <- barchart(No + Intermediate + Yes ~ metric | evidencetype, combined, 
          stack=T, 
          auto.key=list(columns=3), 
          horizontal=F, 
+         par.settings = my.settings,
          xlab="Evaluation metric",
          ylab="Percentage of evaluated evidence items")
 

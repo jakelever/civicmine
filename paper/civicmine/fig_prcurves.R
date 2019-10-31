@@ -32,7 +32,7 @@ prcurvesPlot <- xyplot(precision ~ recall | reltype,
        data, 
        lwd=3,
        type="l")
-prcurvesPlot <- arrangeGrob(prcurvesPlot,top="(a)")
+#prcurvesPlot <- arrangeGrob(prcurvesPlot,top="(a)")
 
 data <- data[order(data$threshold),]
 
@@ -52,7 +52,7 @@ thresholdPlot <- xyplot(precision + recall ~ threshold | reltype,
        auto.key=list(space="top", columns=2, 
                      points=FALSE, rectangles=TRUE),
        data, type="l")
-thresholdPlot <- arrangeGrob(thresholdPlot,top="(b)")
+#thresholdPlot <- arrangeGrob(thresholdPlot,top="(b)")
 
 fig_prcurves <- arrangeGrob(prcurvesPlot,thresholdPlot,ncol=1)
 
