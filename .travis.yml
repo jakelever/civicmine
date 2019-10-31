@@ -3,7 +3,7 @@ python:
   - "3.6"
 install:
   - pip install pubrunner
-  - pip install kindred
-  - pip install https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.2.3/en_core_sci_sm-0.2.3.tar.gz
+  - pip install kindred scispacy
+  - pip install https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.2.4/en_core_sci_sm-0.2.4.tar.gz
 script:
    - pubrunner --defaultsettings --test .

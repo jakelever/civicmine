@@ -36,8 +36,8 @@ git clone https://github.com/jakelever/civicmine.git
 The dependencies can be installed with the command below. You also need to install the [scispacy](https://allenai.github.io/scispacy/) language model.
 
 ```
-pip install kindred pubrunner
-pip install https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.2.3/en_core_sci_sm-0.2.3.tar.gz
+pip install kindred pubrunner scispacy
+pip install https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.2.4/en_core_sci_sm-0.2.4.tar.gz
 ```
 
 Installation should take a maximum of 15 minutes (mostly due to the Spacy and language models installation).
