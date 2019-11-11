@@ -29,7 +29,7 @@ def getNormalizedTerm(text,externalID,IDToTerm):
 
 def normalizeMIRName(externalID):
 	assert externalID.startswith('mirna|'), "Unexpected ID: %s" % externalID
-	normalizedName = externalID[4:]
+	normalizedName = externalID[6:]
 
 	search = re.search('mirna\|\D*(?P<id>\d+[A-Za-z]*)',externalID)
 	if search:
