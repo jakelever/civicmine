@@ -83,6 +83,7 @@ The code to generate all the figures and text for the paper can be found in [pap
 ## Changelog
 
 - v6 data release: change to Kindred's EntityRecognizer uses strict string matching instead of token matching, so results are minorly different
+- v11 data release: updated the Biowordlists to expand the drug name list
 
 ## Citing
 
