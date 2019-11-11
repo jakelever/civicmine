@@ -27,8 +27,10 @@ def parseAndFindEntities(biocFile,filterTermsFile,wordlistPickle,variantStopword
 	with open(wordlistPickle,'rb') as f:
 		termLookup = pickle.load(f)
 
-	with open(filterTermsFile,'r') as f:
-		filterTerms = [ line.strip().lower() for line in f ]
+	filterTerms = None
+	if filterTermsFile:
+		with open(filterTermsFile,'r') as f:
+			filterTerms = [ line.strip().lower() for line in f ]
 
 	with open(variantStopwordsFile) as f:
 		variantStopwords = [ line.strip() for line in f ]
@@ -44,9 +46,10 @@ def parseAndFindEntities(biocFile,filterTermsFile,wordlistPickle,variantStopword
 	parser = kindred.Parser(model='en_core_sci_sm')
 	ner = kindred.EntityRecognizer(lookup=termLookup,detectFusionGenes=True,detectMicroRNA=True,acronymDetectionForAmbiguity=True,mergeTerms=True,detectVariants=True,variantStopwords=variantStopwords)
 	for corpusno,corpus in enumerate(kindred.iterLoad('biocxml',biocFile)):
-		startTime = time.time()
-		corpus = filterCorpus(corpus,filterTerms)
-		timers['filter'] += time.time() - startTime
+		if filterTerms:
+			startTime = time.time()
+			corpus = filterCorpus(corpus,filterTerms)
+			timers['filter'] += time.time() - startTime
 
 		startTime = time.time()
 		parser.parse(corpus)
@@ -69,9 +72,11 @@ def parseAndFindEntities(biocFile,filterTermsFile,wordlistPickle,variantStopword
 
 			for sentence in doc.sentences:
 				sentenceTextLower = sentence.text.lower()
-				containsFilterTerm = any( ft in sentenceTextLower for ft in filterTerms)
-				if not containsFilterTerm:
-					continue
+
+				if filterTerms:
+					containsFilterTerm = any( ft in sentenceTextLower for ft in filterTerms)
+					if not containsFilterTerm:
+						continue
 
 				entityTypesInSentence = set([ entity.entityType for entity,tokenIndices in sentence.entityAnnotations ])
 				foundCancer = 'cancer' in entityTypesInSentence
@@ -104,10 +109,10 @@ def parseAndFindEntities(biocFile,filterTermsFile,wordlistPickle,variantStopword
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser(description='Finds relations in Pubmed file')
 	parser.add_argument('--biocFile',required=True,help='BioC XML file to use')
-	parser.add_argument('--filterTerms',required=True)
-	parser.add_argument('--wordlistPickle',required=True)
-	parser.add_argument('--variantStopwords',required=True)
-	parser.add_argument('--outSentencesFilename',required=True)
+	parser.add_argument('--filterTerms',required=False,default=None,type=str,help='File with terms to filter sentences')
+	parser.add_argument('--wordlistPickle',required=True,type=str,help='Pickled wordlist of gene/cancer/drug terms')
+	parser.add_argument('--variantStopwords',required=True,type=str,help='File of variants to skip')
+	parser.add_argument('--outSentencesFilename',required=True,type=str,help='Output file')
 
 	args = parser.parse_args()
 
