@@ -10,8 +10,8 @@
 <a href="https://doi.org/10.5281/zenodo.1472826">
    <img src="https://zenodo.org/badge/DOI/10.5281/zenodo.1472826.svg" />
 </a>
-<a href="https://doi.org/10.1101/500686">
-   <img src="https://img.shields.io/badge/bioRxiv-preprint-67baea.svg" />
+<a href="https://doi.org/10.1186/s13073-019-0686-y">
+   <img src="https://img.shields.io/badge/genome-medicine-red" />
 </a>
 </p>
 
