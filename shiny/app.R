@@ -100,7 +100,6 @@ ui <- function(req) {
                                               options = list(maxOptions = 2*length(drugNames))),
                                checkboxGroupInput('evidencetype_input', 'Evidence Type', choices = evidencetypes),
                                checkboxGroupInput('variant_input', 'Variant', choices = variantNames),
-                               actionLink("selectall","Select All"),
                                
                                width=2
                                #verbatimTextOutput("gene_text")
