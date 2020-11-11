@@ -23,3 +23,11 @@ nightly-ClinicalEvidenceSummaries.tsv
 .R*
 civicmine.Rproj
 .Rproj.user
+
+.snakemake/
+working/
+test_working/
+models.flag
+
+dataForModels/
+
