@@ -73,6 +73,10 @@ def parseAndFindEntities(biocFile,filterTermsFile,wordlistPickle,variantStopword
 			for sentence in doc.sentences:
 				sentenceTextLower = sentence.text.lower()
 
+				# Trim extremely long sentences
+				if len(sentenceTextLower) > 1000:
+					continue
+
 				if filterTerms:
 					containsFilterTerm = any( ft in sentenceTextLower for ft in filterTerms)
 					if not containsFilterTerm:

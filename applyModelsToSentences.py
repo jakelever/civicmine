@@ -9,6 +9,7 @@ import re
 import string
 from collections import defaultdict,Counter
 import json
+import html
 
 def now():
 	return time.strftime("%Y-%m-%d %H:%M:%S")
@@ -39,14 +40,30 @@ def normalizeMIRName(externalID):
 
 	return normalizedName
 
-headers = None
-def applyFinalFilter(row):
-	global headers
+def getFormattedSentence(sentence,entitiesToHighlight):
+	charArray = [ html.escape(c) for c in sentence.text ]
 
+	sentenceStart = sentence.tokens[0].startPos
+	for e in entitiesToHighlight:
+		for startPos,endPos in e.position:
+			startPos -= sentenceStart
+			endPos -= sentenceStart
+
+			try:
+				charArray[startPos] = '<b>' + charArray[startPos]
+				charArray[endPos-1] = charArray[endPos-1] + '</b>'
+			except:
+				print("ERROR in getFormattedSentence")
+				print(doc.text)
+				print(e.text)
+				print(e.position)
+				sys.exit(1)
+
+	return "".join(charArray)
+
+headers = ['pmid','title','journal','journal_short','year','month','day','section','subsection','evidencetype','evidencetype_prob','cancer_id','cancer_text','cancer_normalized','cancer_start','cancer_end','gene_hugo_id','gene_entrez_id','gene_text','gene_normalized','gene_start','gene_end','drug_id','drug_text','drug_normalized','drug_start','drug_end','variant_id','variant_text','variant_normalized','variant_start','variant_end','variant_prob','sentence','formatted_sentence']
+def applyFinalFilter(row):
 	# Filter out incorrect output with some rules
-	if headers is None:
-		with open('header.tsv') as f:
-			headers = f.read().strip().split('\t')
 	assert len(row) == len(headers), "Number of columns in output data (%d) doesn't  match with header count (%d)" % (len(row),len(headers))
 
 	row = { h:v for h,v in zip(headers,row) }
@@ -69,6 +86,9 @@ def applyFinalFilter(row):
 
 def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cancerTypes,drugs,variants,outData):
 	print("%s : start" % now())
+
+	thresholds = {}
+	thresholds['AssociatedVariant'] = 0.7
 
 	models = {}
 	assert isinstance(modelFilenames,list)
@@ -136,6 +156,8 @@ def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cance
 	print("%s : ner" % now())
 
 	with codecs.open(outData,'a','utf-8') as outF:
+		outF.write("\t".join(headers) + "\n")
+
 		startTime = time.time()
 		for modelname,model in models.items():
 			model.predict(corpus)
@@ -154,10 +176,17 @@ def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cance
 			if not doc.metadata["pmid"]:
 				continue
 
+			journal_short = str(doc.metadata['journal'])
+			if len(journal_short) > 50:
+				journal_short = journal_short[:50] + '...'
+
 			entity_to_sentence = {}
 			for sentence in doc.sentences:
 				for entity,tokenIndices in sentence.entityAnnotations:
 					entity_to_sentence[entity] = sentence
+
+			# Remove entities with ambigious entities
+			doc.relations = [ r for r in doc.relations if not any ( [';' in e.externalID for e in r.entities] ) ]
 
 			geneID2Variant = defaultdict(list)
 			for relation in doc.relations:
@@ -173,8 +202,9 @@ def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cance
 			
 				v = typeToEntity['variant']
 				prob = relation.probability
-				#variant = (typeToEntity['variant'].externalID,typeToEntity['variant'].text,)
-				geneID2Variant[geneID].append((v,prob))
+				if prob > thresholds['AssociatedVariant']:
+					#variant = (typeToEntity['variant'].externalID,typeToEntity['variant'].text,)
+					geneID2Variant[geneID].append((v,prob))
 
 			for relation in doc.relations:
 				# IgnoreVariant as we deal with them seperately (above)
@@ -228,33 +258,36 @@ def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cance
 
 				associatedVariants = []
 				if geneID in geneID2Variant:
-					for entity,prob in list(geneID2Variant[geneID]):
-						startPos,endPos = entity.position[0]
-						if entity.externalID.startswith('substitution|'):
+					associatedVariants = geneID2Variant[geneID]
+				else:
+					associatedVariants = [ (None,None) ]
+
+				for associatedVariantEntity,variantProb in associatedVariants:
+					associatedVariant = ['' for _ in range(6)]
+					if associatedVariantEntity is not None:
+						startPos,endPos = associatedVariantEntity.position[0]
+						if associatedVariantEntity.externalID.startswith('substitution|'):
 							normalizedTerm = 'substitution'
 						else:
-							normalizedTerm = getNormalizedTerm(entity.text,entity.externalID,IDToTerm)
-						tmp = []
-						tmp.append(entity.externalID)
-						tmp.append(entity.text)
-						tmp.append(normalizedTerm)
-						tmp.append(startPos - sentenceStart)
-						tmp.append(endPos - sentenceStart)
-						tmp.append(prob)
-						associatedVariants.append(tmp)
-				else:
-					blank = ['' for _ in range(6)]
-					associatedVariants.append(blank)
-					
-
-				for associatedVariant in associatedVariants:
+							normalizedTerm = getNormalizedTerm(associatedVariantEntity.text,associatedVariantEntity.externalID,IDToTerm)
+						associatedVariant = []
+						associatedVariant.append(associatedVariantEntity.externalID)
+						associatedVariant.append(associatedVariantEntity.text)
+						associatedVariant.append(normalizedTerm)
+						associatedVariant.append(startPos - sentenceStart)
+						associatedVariant.append(endPos - sentenceStart)
+						associatedVariant.append(variantProb)
+						
 					m = doc.metadata
 					if not 'subsection' in m:
 						m['subsection'] = None
 
+					combinedEntities = relation.entities + [ associatedVariantEntity ] if associatedVariantEntity else []
+					formattedSentence = getFormattedSentence(sentence, combinedEntities )
+
 					prob = relation.probability
 					combinedEntityData = entityData['cancer'] + entityData['gene'] + entityData['drug'] + associatedVariant
-					outData = [m['pmid'],m['title'],m['journal'],m['year'],m['month'],m['day'],m['section'],m['subsection'],relType,prob] + combinedEntityData + [sentence.text]
+					outData = [m['pmid'],m['title'],m['journal'],journal_short,m['year'],m['month'],m['day'],m['section'],m['subsection'],relType,prob] + combinedEntityData + [sentence.text, formattedSentence]
 					if applyFinalFilter(outData):
 						outLine = "\t".join(map(str,outData))
 						outF.write(outLine+"\n")

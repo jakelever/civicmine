@@ -1,1 +1,0 @@
-pmid	title	journal	year	month	day	section	subsection	evidencetype	evidencetype_prob	cancer_id	cancer_text	cancer_normalized	cancer_start	cancer_end	gene_hugo_id	gene_entrez_id	gene_text	gene_normalized	gene_start	gene_end	drug_id	drug_text	drug_normalized	drug_start	drug_end	variant_id	variant_text	variant_normalized	variant_start	variant_end	variant_prob	sentence
