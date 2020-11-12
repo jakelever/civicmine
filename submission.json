@@ -1,0 +1,12 @@
+{
+	"file_list": [
+		"working/civicmine_collated.tsv",
+		"working/civicmine_sentences.tsv",
+		"working/civicmine_unfiltered.tsv"
+	],
+	"title": "CIViCmine",
+	"author": "Jake Lever",
+	"author_affiliation": "Stanford University",
+	"description_file": "output_description.md",
+	"existing_zenodo_id": "1472826"
+}
