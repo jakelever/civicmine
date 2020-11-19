@@ -185,8 +185,9 @@ def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cance
 				for entity,tokenIndices in sentence.entityAnnotations:
 					entity_to_sentence[entity] = sentence
 
-			# Remove entities with ambigious entities
+			# Remove entities with ambigious entities (with ; as ID delimiter, or & for combos/fusions)
 			doc.relations = [ r for r in doc.relations if not any ( [';' in e.externalID for e in r.entities] ) ]
+			doc.relations = [ r for r in doc.relations if not any ( [ e.externalID.startswith('combo|') and '&' in e.externalID for e in r.entities] ) ]
 
 			geneID2Variant = defaultdict(list)
 			for relation in doc.relations:
