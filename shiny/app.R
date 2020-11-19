@@ -28,7 +28,7 @@ collatedFilename <- normalizePath(collatedFilename)
 fileInfo <- file.info(collatedFilename)
 modifiedDate <- strsplit(as.character(fileInfo$mtime), ' ')[[1]][1]
 
-collated <- fread(collatedFilename,sep='\t',header=T,stringsAsFactors=T,quote='')
+collated <- fread(collatedFilename,sep='\t',header=T,stringsAsFactors=T,quote='',encoding='UTF-8')
 collated[collated$variant_group=='','variant_group'] <- '[unknown]'
 
 evidencetypes <- sort(unique(as.character(collated$evidencetype)))
@@ -39,7 +39,7 @@ variantNames <- sort(unique(as.character(collated$variant_group)))
 
 
 
-civicdb <- fread(civicdbFilename,sep='\t',header=T)
+civicdb <- fread(civicdbFilename,sep='\t',header=T,encoding='UTF-8')
 civicdb <- civicdb[,c('pubmed_id','entrez_id','doid','drugs','evidence_type','variant')]
 civicdb$drugs <- tolower(civicdb$drugs)
 civicdb$variant <- tolower(civicdb$variant)
