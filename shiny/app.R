@@ -52,7 +52,7 @@ collated$combined <- paste(collated$evidencetype,collated$gene_entrez_id,gsub("D
 
 collated$in_civic <- factor(collated$combined %in% civicdb$combined, labels=c("No","Yes"))
 
-sentences <- fread(sentencesFilename,sep='\t',header=T,quote='')
+sentences <- fread(sentencesFilename,sep='\t',header=T,quote='',encoding='UTF-8')
 sentences$pubmed_link <- paste("<a target=\"_blank\" href='https://www.ncbi.nlm.nih.gov/pubmed/", sentences$pmid, "'>", sentences$pmid, "</a>", sep='')
 sentences$paper_in_civic <- factor(sentences$pmid %in% civicdb$pubmed_id, labels=c("No","Yes"))
 
