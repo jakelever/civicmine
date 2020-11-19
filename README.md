@@ -23,7 +23,9 @@ In brief: it finds sentences that describe genes, variants, cancer types and opt
 
 This is a Python3 project which has been tested on Centos 6/7 but should work on other Linux operating systems and MacOS. An individual process of this can be run on a laptop or desktop computer. But in order to process all of the literature (PubMed, etc), this should really be run on a cluster or server-like machine. A cluster that uses Slurm or the SunGrid engine (SGE) are supported. Each node needs only 4 GBs on RAM.
 
-This project relies on text mining using [Kindred](https://github.com/jakelever/kindred) and resource management with [PubRunner](https://github.com/jakelever/pubrunner). These can be installed through pip.
+This project relies on text mining using [Kindred](https://github.com/jakelever/kindred) and [Snakemake](https://snakemake.github.io/). These can be installed through pip.
+
+It uses biomedical text converted using [BioText](https://github.com/jakelever/biotext).
 
 ## Installation Guide
 
@@ -33,10 +35,12 @@ You can clone this repo using Git or download the [ZIP file](https://github.com/
 git clone https://github.com/jakelever/civicmine.git
 ```
 
-The dependencies can be installed with the command below. You also need to install the [scispacy](https://allenai.github.io/scispacy/) language model.
+It uses the [BioText](https://github.com/jakelever/biotext) project which downloads and converts the biomedical research literature into the [BioC XML](http://bioc.sourceforge.net/) format. You'll need to clone it and run the conversion scripts.
+
+The code dependencies can be installed with the command below. You also need to install the [scispacy](https://allenai.github.io/scispacy/) language model.
 
 ```
-pip install kindred pubrunner scispacy
+pip install kindred snakemake scispacy zenodo_get
 pip install https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.2.4/en_core_sci_sm-0.2.4.tar.gz
 ```
 
@@ -44,21 +48,25 @@ Installation should take a maximum of 15 minutes (mostly due to the Spacy and la
 
 ## Instructions for Use
 
-A full run of CIViCmine will take some time as the large corpora need to be downloaded and parsing takes a long time. A cluster is strongly recommended for this task. PubRunner uses Snakemake for execution and can therefore be used on most clusters.
+A full run of CIViCmine will take some time as the large corpora need to be downloaded and parsing takes a long time. A cluster is strongly recommended for this task.
 
 A test run (which is what the Travis-CI test does) can be executed with:
 ```
-pubrunner --test .
+MODE=test snakemake --cores 1
 ```
 
-The full run can be executed with:
+The full run can be executed after you've downloaded and converted the [BioText](https://github.com/jakelever/biotext) data with the command below, pointing BIOTEXT to the directory with the BioText BioC XML files.
 ```
-pubrunner .
+MODE=full BIOTEXT=$BIOTEXT snakemake --cores 1
 ```
+
+Practically, you'll likely want to use a cluster to parallelize this. Please refer to the [Snakemake documentation](https://snakemake.readthedocs.io/en/stable/executing/cluster.html) for information about how to use a cluster.
+
+For uploading the output to Zenodo, this project uses [bigzenodo](https://pypi.org/project/bigzenodo/) and the [submission.json](https://github.com/jakelever/civicmine/blob/master/submission.json) file.
 
 ## Inputs
 
-The project uses wordlists from the [BioWordlists](https://github.com/jakelever/biowordlists) project for cancers, genes, drugs, variants and conflicting terms. The corpora used are PubMed abstracts and full-text papers from the PubMed Central Open Access Subset. While processing the full-text articles, subsection headers (e.g. Results) are also extracted to make it easier to locate where statements are made. The list of possible headers extracted can be found [here](https://github.com/jakelever/pubrunner/blob/master/subsectionHeaders.md). The actual extraction is managed by PubRunner.
+The project uses wordlists from the [BioWordlists](https://github.com/jakelever/biowordlists) project for cancers, genes, drugs, variants and conflicting terms. The corpora used are PubMed abstracts and full-text papers from the PubMed Central Open Access Subset. While processing the full-text articles, subsection headers (e.g. Results) are also extracted to make it easier to locate where statements are made. The list of possible headers extracted can be found [here](https://github.com/jakelever/pubrunner/blob/master/subsectionHeaders.md).
 
 We have annotated 800 sentences that comprise the civicmine_corpus which are used for training a Kindred classifier. This data can be found in the [data/](https://github.com/jakelever/civicmine/tree/master/data) directory and has been split into training and test sets.
 
@@ -84,6 +92,7 @@ The code to generate all the figures and text for the paper can be found in [pap
 
 - v6 data release: change to Kindred's EntityRecognizer uses strict string matching instead of token matching, so results are minorly different
 - v11 data release: updated the Biowordlists to expand the drug name list
+- v22 data release: Reworked pipeline to use Biotext+snakemake instead of PubRunner. Prioritized using text from PMC. Also updated the Biowordlist
 
 ## Citing
 
