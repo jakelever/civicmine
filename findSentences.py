@@ -54,12 +54,12 @@ def parseAndFindEntities(biocFile,filterTermsFile,wordlistPickle,variantStopword
 		startTime = time.time()
 		parser.parse(corpus)
 		timers['parser'] += time.time() - startTime
-		print("%s : parsed" % now())
+		#print("%s : parsed" % now())
 
 		startTime = time.time()
 		ner.annotate(corpus)
 		timers['ner'] += time.time() - startTime
-		print("%s : ner" % now())
+		#print("%s : ner" % now())
 
 		startTime = time.time()
 
@@ -98,7 +98,7 @@ def parseAndFindEntities(biocFile,filterTermsFile,wordlistPickle,variantStopword
 
 		timers['entitiesAdded'] += time.time() - startTime
 
-		print("%s : entities added" % now())
+		#print("%s : entities added" % now())
 		sys.stdout.flush()
 
 	with open(outSentencesFilename,'w') as f:
