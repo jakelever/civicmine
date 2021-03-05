@@ -41,7 +41,7 @@ The code dependencies can be installed with the command below. You also need to 
 
 ```
 pip install kindred snakemake scispacy zenodo_get
-pip install https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.2.4/en_core_sci_sm-0.2.4.tar.gz
+pip install https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.4.0/en_core_sci_sm-0.4.0.tar.gz
 ```
 
 Installation should take a maximum of 15 minutes (mostly due to the Spacy and language models installation).
