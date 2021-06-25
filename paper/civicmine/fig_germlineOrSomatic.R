@@ -34,7 +34,7 @@ my.settings <- list(
 germlineOrSomaticPlot <- barchart(perc ~ evidencetype, 
          merged,
          stack=T,
-         auto.key=list(columns=4),
+         auto.key=list(columns=2),
          xlab='Evidence Type',
          ylab='Percentage',
          par.settings = my.settings,

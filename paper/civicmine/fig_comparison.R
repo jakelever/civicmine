@@ -2,6 +2,9 @@
 
 source('civicmine/dependencies.R')
 
+vennOffset <- 10
+vennDist <- 0.08
+
 #setwd(".")
 civicmineFilename <- 'civicmine/civicmine_collated.tsv'
 civicmineFilename <- normalizePath(civicmineFilename)
@@ -46,21 +49,34 @@ paper.civicCount <- length(unique(civicdb$combined))
 paper.civicCount <- prettyNum(paper.civicCount,big.mark=",")
 
 biomarkerComparisonPlot <- venn.diagram(
-  x = list("CIViC items"=unique(civicdb$combined) , "CIViCmine items"=unique(civicmine$combined) ),
+  x = list("CIViC"=unique(civicdb$combined) , "CIViCmine"=unique(civicmine$combined) ),
   scaled=F,
   fill = c("grey", "white"),
   cat.fontface = 2,
-  cat.pos = 0,
+  cat.dist = vennDist,
+  cat.pos = c(vennOffset,-vennOffset),
   filename=NULL)
 biomarkerComparisonPlot <- gTree(children=biomarkerComparisonPlot)
 
-pmidComparisonPlot <- venn.diagram(
-  x = list("CIViC PMIDs"=unique(as.character(civicdb$pubmed_id[!is.na(civicdb$pubmed_id)])) , 
-           "CIViCmine PMIDs"=unique(as.character(civicmineSentences$pmid)) ),
+tempPlot <- venn.diagram(
+  x = list("CIViC"=unique(civicdb$combined) , "CIViCmine"=unique(civicmine$combined) ),
   scaled=F,
   fill = c("grey", "white"),
   cat.fontface = 2,
-  cat.pos = 0,
+  cat.dist = vennDist,
+  cat.pos = c(vennOffset,-vennOffset),
+  filename=NULL)
+tempPlot2 <- gTree(children=tempPlot)
+grid.arrange(tempPlot2)
+
+pmidComparisonPlot <- venn.diagram(
+  x = list("CIViC"=unique(as.character(civicdb$pubmed_id[!is.na(civicdb$pubmed_id)])) , 
+           "CIViCmine"=unique(as.character(civicmineSentences$pmid)) ),
+  scaled=F,
+  fill = c("grey", "white"),
+  cat.fontface = 2,
+  cat.dist = vennDist,
+  cat.pos = c(vennOffset,-vennOffset),
   filename=NULL)
 pmidComparisonPlot <- gTree(children=pmidComparisonPlot)
 

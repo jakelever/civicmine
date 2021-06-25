@@ -22,11 +22,12 @@ cgiPredictive$combinedNoVariant <- paste(cgiPredictive$gene,cgiPredictive$cancer
 
 
 cgiPredictivePlot <- venn.diagram(
-  x = list("CGI Biomarkers"=unique(cgiPredictive$combined) , "CIViCmine Predictive"=unique(tmpCivicmine$combined) ),
+  x = list("CGI"=unique(cgiPredictive$combined) , "CIViCmine"=unique(tmpCivicmine$combined) ),
   scaled=F,
   fill = c("grey", "white"),
   cat.fontface = 2,
-  cat.pos = 0,
+  cat.dist = vennDist,
+  cat.pos = c(vennOffset,-vennOffset),
   filename=NULL)
 cgiPredictivePlot <- gTree(children=cgiPredictivePlot)
 grid.arrange(cgiPredictivePlot)
@@ -47,13 +48,15 @@ cgiPredisposing$combinedNoVariant <- paste(cgiPredisposing$gene,cgiPredisposing$
 #write.table(uniqueToCGIPredisposing,'uniqueToCGIPredisposing.tsv',sep='\t',quote=F,row.names=F)
 
 cgiPredisposingPlot <- venn.diagram(
-  x = list("CGI Predisposing"=unique(cgiPredisposing$combinedNoVariant) , "CIViCmine Predisposing"=unique(tmpCivicmine$combinedNoVariant) ),
+  x = list("CGI"=unique(cgiPredisposing$combinedNoVariant) , "CIViCmine"=unique(tmpCivicmine$combinedNoVariant) ),
   scaled=F,
   fill = c("grey", "white"),
   cat.fontface = 2,
-  cat.pos = 0,
+  cat.dist = vennDist,
+  cat.pos = c(vennOffset,-vennOffset),
   filename=NULL)
 cgiPredisposingPlot <- gTree(children=cgiPredisposingPlot)
+#cgiPredisposingPlot <- arrangeGrob(cgiPredisposingPlot, top='Predisposing')
 grid.arrange(cgiPredisposingPlot)
 
 
@@ -77,11 +80,12 @@ overlap <- oncokbPredictive[oncokbPredictive$combined %in% tmpCivicmine$combined
 #egfrSubset <- civicmine[civicmine$evidencetype=='Predictive' & civicmine$gene_normalized=='EGFR',]
 
 oncoKBPredictivePlot <- venn.diagram(
-  x = list("OncoKB"=unique(oncokbPredictive$combined) , "CIViCmine Predictive"=unique(tmpCivicmine$combined) ),
+  x = list("OncoKB"=unique(oncokbPredictive$combined) , "CIViCmine"=unique(tmpCivicmine$combined) ),
   scaled=F,
   fill = c("grey", "white"),
   cat.fontface = 2,
-  cat.pos = 0,
+  cat.dist = vennDist,
+  cat.pos = c(vennOffset,-vennOffset),
   filename=NULL)
 oncoKBPredictivePlot <- gTree(children=oncoKBPredictivePlot)
 grid.arrange(oncoKBPredictivePlot)
