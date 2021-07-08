@@ -41,6 +41,7 @@ def normalizeMIRName(externalID):
 	return normalizedName
 
 def getFormattedSentence(sentence,entitiesToHighlight):
+	print(sentence, entitiesToHighlight)
 	charArray = [ html.escape(c) for c in sentence.text ]
 
 	sentenceStart = sentence.tokens[0].startPos
@@ -283,7 +284,7 @@ def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cance
 					if not 'subsection' in m:
 						m['subsection'] = None
 
-					combinedEntities = relation.entities + [ associatedVariantEntity ] if associatedVariantEntity else []
+					combinedEntities = relation.entities + ([ associatedVariantEntity ] if associatedVariantEntity else [])
 					formattedSentence = getFormattedSentence(sentence, combinedEntities )
 
 					prob = relation.probability
