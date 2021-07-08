@@ -67,6 +67,7 @@ fig_evaluationresults <- barchart(No + Intermediate + Yes ~ metric | evidencetyp
          auto.key=list(columns=3), 
          horizontal=F, 
          par.settings = my.settings,
+         scales = list(x=list(rot=45)),
          xlab="Evaluation metric",
          ylab="Percentage of evaluated evidence items")
 
