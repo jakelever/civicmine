@@ -10,7 +10,7 @@ expectedColumns <- c('pubmed_id','entrez_id','doid','drugs','evidence_type','var
 civicdb <- fread(tempFilename,sep='\t',header=T)
 
 civicdb$pubmed_id <- 0
-civicdb[civicdb$source_type=='PubMed','pubmed_id'] <- civicdb$citation_id
+civicdb[civicdb$source_type=='PubMed','pubmed_id'] <- civicdb[civicdb$source_type=='PubMed','citation_id']
 civicdb$pubmed_id <- as.integer(civicdb$pubmed_id)
 
 foundColumns <- expectedColumns %in% colnames(civicdb)
