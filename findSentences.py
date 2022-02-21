@@ -21,6 +21,23 @@ def filterCorpus(corpus,filterTerms):
 			filtered.addDocument(doc)
 	return filtered
 
+dashCharacters = ["-", "\u00ad", "\u2010", "\u2011", "\u2012", "\u2013", "\u2014", "\u2043", "\u2053"]
+def fixDashes(text):
+	if any (dc in text for dc in dashCharacters):
+		for dc in dashCharacters:
+			text = text.replace(dc,'-')
+	return text
+
+def tidyWhitespace(text):
+	return re.sub(r'\s+', ' ', text)
+
+def cleanCorpus(corpus):
+	for doc in corpus.documents:
+		if doc.text:
+			doc.text = tidyWhitespace(fixDashes(doc.text))
+		if doc.metadata['title']:
+			doc.metadata['title'] = tidyWhitespace(fixDashes(doc.metadata['title']))
+
 def parseAndFindEntities(biocFile,filterTermsFile,wordlistPickle,variantStopwordsFile,outSentencesFilename):
 	print("%s : start" % now())
 
@@ -50,6 +67,8 @@ def parseAndFindEntities(biocFile,filterTermsFile,wordlistPickle,variantStopword
 			startTime = time.time()
 			corpus = filterCorpus(corpus,filterTerms)
 			timers['filter'] += time.time() - startTime
+
+		cleanCorpus(corpus)
 
 		startTime = time.time()
 		parser.parse(corpus)
