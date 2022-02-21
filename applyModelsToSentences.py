@@ -41,7 +41,6 @@ def normalizeMIRName(externalID):
 	return normalizedName
 
 def getFormattedSentence(sentence,entitiesToHighlight):
-	print(sentence, entitiesToHighlight)
 	charArray = [ html.escape(c) for c in sentence.text ]
 
 	sentenceStart = sentence.tokens[0].startPos
@@ -85,8 +84,9 @@ def applyFinalFilter(row):
 
 	return True
 
-def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cancerTypes,drugs,variants,outData):
-	print("%s : start" % now())
+def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cancerTypes,drugs,variants,outData,verbose=False):
+	if verbose:
+		print("%s : start" % now())
 
 	thresholds = {}
 	thresholds['AssociatedVariant'] = 0.7
@@ -132,7 +132,8 @@ def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cance
 
 	timers = Counter()
 
-	print("%s : loading..." % now())
+	if verbose:
+		print("%s : loading..." % now())
 	with open(sentenceFile) as f:
 		sentenceData = json.load(f)
 
@@ -143,18 +144,22 @@ def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cance
 		doc = kindred.Document(sentence["sentence"],metadata=metadata)
 		corpus.addDocument(doc)
 
-	print("%s : loaded..." % now())
+	if verbose:
+		print("%s : loaded..." % now())
 	startTime = time.time()
 	parser = kindred.Parser(model='en_core_sci_sm')
 	parser.parse(corpus)
 	timers['parser'] += time.time() - startTime
-	print("%s : parsed" % now())
+
+	if verbose:
+		print("%s : parsed" % now())
 
 	startTime = time.time()
 	ner = kindred.EntityRecognizer(lookup=termLookup,detectVariants=True,detectFusionGenes=True,detectMicroRNA=True,acronymDetectionForAmbiguity=True,mergeTerms=True,removePathways=True)
 	ner.annotate(corpus)
 	timers['ner'] += time.time() - startTime
-	print("%s : ner" % now())
+	if verbose:
+		print("%s : ner" % now())
 
 	with codecs.open(outData,'a','utf-8') as outF:
 		outF.write("\t".join(headers) + "\n")
@@ -164,7 +169,8 @@ def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cance
 			model.predict(corpus)
 		timers['predicted'] += time.time() - startTime
 
-		print("%s : predicted" % now())
+		if verbose:
+			print("%s : predicted" % now())
 
 		startTime = time.time()
 
@@ -296,15 +302,17 @@ def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cance
 
 		timers['output'] += time.time() - startTime
 
-		print("%s : output" % now())
+		if verbose:
+			print("%s : output" % now())
 
 	sys.stdout.flush()
 
-	print("%s : done" % now())
-	
-	for section,sectiontime in timers.items():
-		print("%s\t%f" % (section,sectiontime))
-	print("%s\t%f" % ("applyModelsToSentences total", sum(timers.values())))
+	if verbose:
+		print("%s : done" % now())
+		
+		for section,sectiontime in timers.items():
+			print("%s\t%f" % (section,sectiontime))
+		print("%s\t%f" % ("applyModelsToSentences total", sum(timers.values())))
 
 
 if __name__ == '__main__':
@@ -318,7 +326,9 @@ if __name__ == '__main__':
 	parser.add_argument('--drugs',required=True)
 	parser.add_argument('--variants',required=True)
 	parser.add_argument('--outData',required=True)
+	parser.add_argument('--verbose', action='store_true', help='Whether to print out information about run')
 
 	args = parser.parse_args()
 
-	civicmine(args.sentenceFile,args.models.split(','),args.filterTerms,args.wordlistPickle,args.genes,args.cancerTypes,args.drugs,args.variants,args.outData)
+	civicmine(args.sentenceFile,args.models.split(','),args.filterTerms,args.wordlistPickle,args.genes,args.cancerTypes,args.drugs,args.variants,args.outData,verbose=args.verbose)
+

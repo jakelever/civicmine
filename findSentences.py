@@ -38,8 +38,9 @@ def cleanCorpus(corpus):
 		if doc.metadata['title']:
 			doc.metadata['title'] = tidyWhitespace(fixDashes(doc.metadata['title']))
 
-def parseAndFindEntities(biocFile,filterTermsFile,wordlistPickle,variantStopwordsFile,outSentencesFilename):
-	print("%s : start" % now())
+def parseAndFindEntities(biocFile,filterTermsFile,wordlistPickle,variantStopwordsFile,outSentencesFilename,verbose=False):
+	if verbose:
+		print("%s : start" % now())
 
 	with open(wordlistPickle,'rb') as f:
 		termLookup = pickle.load(f)
@@ -59,7 +60,8 @@ def parseAndFindEntities(biocFile,filterTermsFile,wordlistPickle,variantStopword
 	currentID = None
 	duplicateCheck = set()
 
-	print("%s : processing..." % now())
+	if verbose:
+		print("%s : processing..." % now())
 	parser = kindred.Parser(model='en_core_sci_sm')
 	ner = kindred.EntityRecognizer(lookup=termLookup,detectFusionGenes=True,detectMicroRNA=True,acronymDetectionForAmbiguity=True,mergeTerms=True,detectVariants=True,variantStopwords=variantStopwords)
 	for corpusno,corpus in enumerate(kindred.iterLoad('biocxml',biocFile)):
@@ -123,11 +125,12 @@ def parseAndFindEntities(biocFile,filterTermsFile,wordlistPickle,variantStopword
 	with open(outSentencesFilename,'w') as f:
 		json.dump(outSentences,f,indent=2)
 
-	print("%s : done" % now())
+	if verbose:
+		print("%s : done" % now())
 
-	for section,sectiontime in timers.items():
-		print("%s\t%f" % (section,sectiontime))
-	print("%s\t%f" % ("parseAndFindEntities total", sum(timers.values())))
+		for section,sectiontime in timers.items():
+			print("%s\t%f" % (section,sectiontime))
+		print("%s\t%f" % ("parseAndFindEntities total", sum(timers.values())))
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser(description='Finds relations in Pubmed file')
@@ -136,8 +139,9 @@ if __name__ == '__main__':
 	parser.add_argument('--wordlistPickle',required=True,type=str,help='Pickled wordlist of gene/cancer/drug terms')
 	parser.add_argument('--variantStopwords',required=True,type=str,help='File of variants to skip')
 	parser.add_argument('--outSentencesFilename',required=True,type=str,help='Output file')
+	parser.add_argument('--verbose', action='store_true', help='Whether to print out information about run')
 
 	args = parser.parse_args()
 
-	parseAndFindEntities(args.biocFile,args.filterTerms,args.wordlistPickle,args.variantStopwords,args.outSentencesFilename)
+	parseAndFindEntities(args.biocFile,args.filterTerms,args.wordlistPickle,args.variantStopwords,args.outSentencesFilename,verbose=args.verbose)
 
