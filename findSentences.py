@@ -77,6 +77,10 @@ def parseAndFindEntities(biocFile,filterTermsFile,wordlistPickle,variantStopword
 		timers['parser'] += time.time() - startTime
 		#print("%s : parsed" % now())
 
+		# Filter extremely long sentences
+		for doc in corpus.documents:
+			doc.sentences = [ s for s in doc.sentences if len(s.text) < 500 ]
+
 		startTime = time.time()
 		ner.annotate(corpus)
 		timers['ner'] += time.time() - startTime
