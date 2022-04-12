@@ -1,8 +1,8 @@
 {
 	"file_list": [
-		"working/civicmine_collated.tsv",
-		"working/civicmine_sentences.tsv",
-		"working/civicmine_unfiltered.tsv"
+		"working/civicmine_collated.tsv.gz",
+		"working/civicmine_sentences.tsv.gz",
+		"working/civicmine_unfiltered.tsv.gz"
 	],
 	"title": "CIViCmine",
 	"author": "Jake Lever",

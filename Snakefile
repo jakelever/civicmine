@@ -16,7 +16,7 @@ elif os.getenv('MODE') == 'test':
 
 kb_files = [ '%s/kb/%s' % (work_dir,f.replace('.bioc.xml','.tsv')) for f in os.listdir(source_dir) ]
 
-final_files =  [ f"{work_dir}/{f}" for f in ['civicmine_unfiltered.tsv','civicmine_collated.tsv','civicmine_sentences.tsv'] ]
+final_files =  [ f"{work_dir}/{f}" for f in ['civicmine_unfiltered.tsv.gz','civicmine_collated.tsv.gz','civicmine_sentences.tsv.gz'] ]
 
 rule final_files:
 	input: final_files
@@ -58,4 +58,9 @@ rule filter_and_collated:
 		collated=f"{work_dir}/civicmine_collated.tsv",
 		sentences=f"{work_dir}/civicmine_sentences.tsv",
 	shell: f"python filterAndCollate.py --inData {work_dir}/kb/ --outUnfiltered {{output.unfiltered}} --outCollated {{output.collated}} --outSentences {{output.sentences}}"
+
+rule gzip:
+	input: "{f}"
+	output: "{f}.gz"
+	shell: "gzip -c {input} > {output}"
 
