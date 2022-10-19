@@ -6,7 +6,11 @@ tempFilename <- 'nightly-ClinicalEvidenceSummaries.tsv.tmp'
 outFilename <- 'nightly-ClinicalEvidenceSummaries.tsv'
 
 # Download the CIViC file and load it
-download.file(civicURL, tempFilename, method='curl')
+if(.Platform$OS.type == "unix") {
+  download.file(civicURL, tempFilename, method='wget', extra='--no-check-certificate')
+} else {
+  download.file(civicURL, tempFilename, method='curl')
+}
 civicdb <- fread(tempFilename,sep='\t',header=T)
 
 # Move PubMed IDs to their own column (from citation_id column) to match old CIViC format
