@@ -6,7 +6,7 @@ library(dplyr)
 library(reshape2)
 library(RColorBrewer)
 library(data.table)
-library(stringr)
+library(R.utils)
 
 # Weird hack as R sometimes "forgets" its working directory
 wd <- setwd(".")
@@ -18,10 +18,8 @@ if (!file.exists('google-analytics.js'))
   file.create('google-analytics.js')
 }
 
-
-
-collatedFilename <- 'civicmine_collated.tsv'
-sentencesFilename <- 'civicmine_sentences.tsv'
+collatedFilename <- 'civicmine_collated.tsv.gz'
+sentencesFilename <- 'civicmine_sentences.tsv.gz'
 civicdbFilename <- 'nightly-ClinicalEvidenceSummaries.tsv'
 
 collatedFilename <- normalizePath(collatedFilename)
@@ -38,9 +36,29 @@ drugNames <- sort(unique(as.character(collated$drug_normalized)))
 variantNames <- sort(unique(as.character(collated$variant_group)))
 
 
+# Handle some experimental code for pediatric cancer data
+if(!"ped_citation_count" %in% colnames(collated))
+{
+  collated$ped_citation_count <- 0 # If the data doesn't contain pediatric info, set counts to zero
+}
+  
+ped_collated <- collated[collated$ped_citation_count>0,]
+
+ped_evidencetypes <- sort(unique(as.character(ped_collated$evidencetype)))
+ped_geneNames <- sort(unique(as.character(ped_collated$gene_normalized)))
+ped_cancerNames <- sort(unique(as.character(ped_collated$cancer_normalized)))
+ped_drugNames <- sort(unique(as.character(ped_collated$drug_normalized)))
+ped_variantNames <- sort(unique(as.character(ped_collated$variant_group)))
+
+ped_collated <- NULL
+
+
+
+
+yesNoMapping = c("TRUE"="Yes","FALSE"="No")
 
 civicdb <- fread(civicdbFilename,sep='\t',header=T,encoding='UTF-8')
-civicdb <- civicdb[,c('pubmed_id','entrez_id','doid','drugs','evidence_type','variant')]
+civicdb <- civicdb[,c('pubmed_id','entrez_id','doid','drugs','evidence_type','variant','phenotypes')]
 civicdb$drugs <- tolower(civicdb$drugs)
 civicdb$variant <- tolower(civicdb$variant)
 
@@ -48,13 +66,19 @@ civicdbFileInfo <- file.info(civicdbFilename)
 civicdbModifiedDate <- strsplit(as.character(civicdbFileInfo$mtime), ' ')[[1]][1]
 
 civicdb$combined <- paste(civicdb$evidence_type,civicdb$entrez_id,civicdb$doid,civicdb$drugs,sep='_')
+
+pediatric_indices <- grep("Pediatric onset|Juvenile onset|Childhood onset|Infantile onset",civicdb$phenotypes, ignore.case=T, perl=T)
+pediatric_civicdb <- civicdb[pediatric_indices,]
+
 collated$combined <- paste(collated$evidencetype,collated$gene_entrez_id,gsub("DOID:","",collated$cancer_id),collated$drug_normalized,sep='_')
 
-collated$in_civic <- factor(collated$combined %in% civicdb$combined, labels=c("No","Yes"))
+collated$in_civic <- factor(yesNoMapping[as.character(collated$combined %in% civicdb$combined)])
+collated$in_pediatric_civic <- factor(yesNoMapping[as.character(collated$combined %in% pediatric_civicdb$combined)])
 
 sentences <- fread(sentencesFilename,sep='\t',header=T,quote='',encoding='UTF-8')
 sentences$pubmed_link <- paste("<a target=\"_blank\" href='https://www.ncbi.nlm.nih.gov/pubmed/", sentences$pmid, "'>", sentences$pmid, "</a>", sep='')
-sentences$paper_in_civic <- factor(sentences$pmid %in% civicdb$pubmed_id, labels=c("No","Yes"))
+
+sentences$paper_in_civic <- factor(yesNoMapping[as.character(sentences$pmid %in% civicdb$pubmed_id)])
 
 
 citationTableExplanation <- "<br /><br /><br /><b>Citation Table:</b><br />Select a biomarker in the table above to see associated citations and sentences<br /><br />"
@@ -80,6 +104,8 @@ ui <- function(req) {
                 tabPanel("Browse", 
                   sidebarPanel(
                                checkboxGroupInput("incivic_input", "In CIViC", c('Yes', 'No')),
+                               #checkboxGroupInput("pediatric_input", "Show Only Pediatric?", c('Yes')),
+                               
                                selectizeInput(inputId = "gene_input", 
                                               label=p("Gene",actionLink("gene_clear", " (Clear)", style='font-size:70%')), 
                                               choices = c('',geneNames), 
@@ -98,6 +124,11 @@ ui <- function(req) {
                                               selected = '', 
                                               multiple = FALSE, 
                                               options = list(maxOptions = 2*length(drugNames))),
+                               
+                               # uiOutput("dynamic_gene_input"),
+                               # uiOutput("dynamic_cancer_input"),
+                               # uiOutput("dynamic_drug_input"),
+                               
                                checkboxGroupInput('evidencetype_input', 'Evidence Type', choices = evidencetypes),
                                checkboxGroupInput('variant_input', 'Variant', choices = variantNames),
                                
@@ -143,12 +174,26 @@ server <- function(input, output, session) {
   tableData <- reactive({
     selected <- rep(TRUE,nrow(collated))
     
-    if (!is.null(input$incivic_input) && length(input$incivic_input)==1) {
-      if (input$incivic_input == 'Yes') {
-        selected <- selected & collated$in_civic=='Yes'
-      } else if (input$incivic_input == 'No') {
-        selected <- selected & collated$in_civic=='No'
+    if (!is.null(input$pediatric_input) && input$pediatric_input == 'Yes') {
+      if (!is.null(input$incivic_input) && length(input$incivic_input)==1) {
+        if (input$incivic_input == 'Yes') {
+          selected <- selected & collated$in_pediatric_civic=='Yes'
+        } else if (input$incivic_input == 'No') {
+          selected <- selected & collated$in_pediatric_civic=='No'
+        }
       }
+    } else {
+      if (!is.null(input$incivic_input) && length(input$incivic_input)==1) {
+        if (input$incivic_input == 'Yes') {
+          selected <- selected & collated$in_civic=='Yes'
+        } else if (input$incivic_input == 'No') {
+          selected <- selected & collated$in_civic=='No'
+        }
+      }
+    }
+    
+    if (!is.null(input$pediatric_input) && input$pediatric_input == 'Yes') {
+      selected <- selected & collated$ped_citation_count > 0
     }
     
     if (input$gene_input!='') {
@@ -176,16 +221,36 @@ server <- function(input, output, session) {
     if (nrow(table)>0) {
       rownames(table) <- 1:nrow(table)
     }
+    
+    if (!is.null(input$pediatric_input) && input$pediatric_input == 'Yes') {
+      #setcolorder(table, c('-ped_citation_count'))
+      #collated[order(ped_citation_count,decreasing=T)]
+      table <- table[order(ped_citation_count,decreasing=T)]
+    } else {
+      #setcolorder(table, c('-citation_count'))
+      table <- table[order(citation_count,decreasing=T)]
+    }
+    
+    
     table
   })
   
   output$data_table <- DT::renderDataTable({
     table <- tableData()
-    DT::datatable(table[,c('evidencetype','gene_normalized','cancer_normalized','drug_normalized','variant_withsub','in_civic','citation_count')],
-                  selection = 'single',
-                  rownames = FALSE,
-                  colnames=c('Evidence Type','Gene', 'Cancer','Drug','Variant','In CIViC','Citation #'),
-                  options = list(pageLength = 20, lengthMenu = c(10, 20, 30)))
+    
+    if (!is.null(input$pediatric_input) && input$pediatric_input == 'Yes') {
+      DT::datatable(table[,c('evidencetype','gene_normalized','cancer_normalized','drug_normalized','variant_withsub','in_pediatric_civic','ped_citation_count')],
+                    selection = 'single',
+                    rownames = FALSE,
+                    colnames=c('Evidence Type','Gene', 'Cancer','Drug','Variant','In Pediatric CIViC','# of Pediatric Papers'),
+                    options = list(pageLength = 20, lengthMenu = c(10, 20, 30)))
+    } else {
+      DT::datatable(table[,c('evidencetype','gene_normalized','cancer_normalized','drug_normalized','variant_withsub','in_civic','citation_count')],
+                    selection = 'single',
+                    rownames = FALSE,
+                    colnames=c('Evidence Type','Gene', 'Cancer','Drug','Variant','In CIViC','# of Papers'),
+                    options = list(pageLength = 20, lengthMenu = c(10, 20, 30)))
+    }
   })
   
   dataTableProxy = dataTableProxy('data_table')
@@ -195,6 +260,11 @@ server <- function(input, output, session) {
       table <- tableData()
       row <- table[input$data_table_rows_selected,]
       entries <- sentences[sentences$matching_id==row$matching_id,]
+      
+      if (!is.null(input$pediatric_input) && input$pediatric_input == 'Yes') {
+        entries <- entries[entries$is_pediatric,]
+      }
+      
     } else {
       entries <- data.frame(matrix(nrow=0,ncol=ncol(sentences)))
       colnames(entries) <- colnames(sentences)
@@ -251,19 +321,19 @@ server <- function(input, output, session) {
     p
   })
   
-  observe({
-    sourceName <- paste('gene_piechart_',gene_event_val$count,sep='')
-    d <- event_data("plotly_click",source=sourceName)
-    piecounts <- gene_piechart_data()
-    if (length(d) > 0 && !is.null(piecounts))
-    {
-      selected <- piecounts[d$pointNumber+1,'label']
-      if (!is.na(selected) && selected != 'other') {
-        updateSelectizeInput(session, "gene_input","Gene", c("",geneNames), selected=selected)
-        gene_event_val$count <- gene_event_val$count + 1
-      }
-    }
-  })
+  # observe({
+  #   sourceName <- paste('gene_piechart_',gene_event_val$count,sep='')
+  #   d <- event_data("plotly_click",source=sourceName)
+  #   piecounts <- gene_piechart_data()
+  #   if (length(d) > 0 && !is.null(piecounts))
+  #   {
+  #     selected <- piecounts[d$pointNumber+1,'label']
+  #     if (!is.na(selected) && selected != 'other') {
+  #       updateSelectizeInput(session, "gene_input","Gene", c("",geneNames), selected=selected)
+  #       gene_event_val$count <- gene_event_val$count + 1
+  #     }
+  #   }
+  # })
   
   
   cancer_event_val <- reactiveValues(count = 0)
@@ -306,19 +376,19 @@ server <- function(input, output, session) {
     p
   })
   
-  observe({
-    sourceName <- paste('cancer_piechart_',cancer_event_val$count,sep='')
-    d <- event_data("plotly_click",source=sourceName)
-    piecounts <- cancer_piechart_data()
-    if (length(d) > 0 && !is.null(piecounts))
-    {
-      selected <- piecounts[d$pointNumber+1,'label']
-      if (!is.na(selected) && selected != 'other') {
-        updateSelectizeInput(session, "cancer_input","Cancer", c("",cancerNames), selected=selected)
-        cancer_event_val$count <- cancer_event_val$count + 1
-      }
-    }
-  })
+  # observe({
+  #   sourceName <- paste('cancer_piechart_',cancer_event_val$count,sep='')
+  #   d <- event_data("plotly_click",source=sourceName)
+  #   piecounts <- cancer_piechart_data()
+  #   if (length(d) > 0 && !is.null(piecounts))
+  #   {
+  #     selected <- piecounts[d$pointNumber+1,'label']
+  #     if (!is.na(selected) && selected != 'other') {
+  #       updateSelectizeInput(session, "cancer_input","Cancer", c("",cancerNames), selected=selected)
+  #       cancer_event_val$count <- cancer_event_val$count + 1
+  #     }
+  #   }
+  # })
   
   
   
@@ -365,19 +435,19 @@ server <- function(input, output, session) {
     p
   })
   
-  observe({
-    sourceName <- paste('drug_piechart_',drug_event_val$count,sep='')
-    d <- event_data("plotly_click",source=sourceName)
-    piecounts <- drug_piechart_data()
-    if (length(d) > 0 && !is.null(piecounts))
-    {
-      selected <- piecounts[d$pointNumber+1,'label']
-      if (!is.na(selected) && selected != 'other') {
-        updateSelectizeInput(session, "drug_input","Drug", c("",drugNames), selected=selected)
-        drug_event_val$count <- drug_event_val$count + 1
-      }
-    }
-  })
+  # observe({
+  #   sourceName <- paste('drug_piechart_',drug_event_val$count,sep='')
+  #   d <- event_data("plotly_click",source=sourceName)
+  #   piecounts <- drug_piechart_data()
+  #   if (length(d) > 0 && !is.null(piecounts))
+  #   {
+  #     selected <- piecounts[d$pointNumber+1,'label']
+  #     if (!is.na(selected) && selected != 'other') {
+  #       updateSelectizeInput(session, "drug_input","Drug", c("",drugNames), selected=selected)
+  #       drug_event_val$count <- drug_event_val$count + 1
+  #     }
+  #   }
+  # })
   
   output$download_collated_all <- downloadHandler(
     filename = function() {
@@ -447,7 +517,54 @@ server <- function(input, output, session) {
   })  
   observeEvent(input$drug_clear, {
     updateSelectizeInput(session, "drug_input", selected = F)
-  })  
+  })
+  
+  # output$dynamic_gene_input <- renderUI({
+  #   
+  #   displayedGeneNames <- geneNames
+  #   if (!is.null(input$pediatric_input) && input$pediatric_input == 'Yes') {
+  #     displayedGeneNames <- ped_geneNames
+  #   }
+  #   
+  #   selectizeInput(inputId = "gene_input", 
+  #                  label=p("Gene",actionLink("gene_clear", " (Clear)", style='font-size:70%')), 
+  #                  choices = c('',displayedGeneNames), 
+  #                  selected = '', 
+  #                  multiple = FALSE, 
+  #                  options = list(maxOptions = 2*length(displayedGeneNames)))
+  # })
+  # 
+  # 
+  # output$dynamic_cancer_input <- renderUI({
+  #   
+  #   displayedCancerNames <- cancerNames
+  #   if (!is.null(input$pediatric_input) && input$pediatric_input == 'Yes') {
+  #     displayedCancerNames <- ped_cancerNames
+  #   }
+  #   
+  #   selectizeInput(inputId = "cancer_input", 
+  #                  label=p("Cancer",actionLink("cancer_clear", " (Clear)", style='font-size:70%')), 
+  #                  choices = c('', displayedCancerNames), 
+  #                  selected = '', 
+  #                  multiple = FALSE, 
+  #                  options = list(maxOptions = 2*length(displayedCancerNames)))
+  # })
+  # 
+  # 
+  # output$dynamic_drug_input <- renderUI({
+  #   
+  #   displayedDrugNames <- drugNames
+  #   if (!is.null(input$pediatric_input) && input$pediatric_input == 'Yes') {
+  #     displayedDrugNames <- ped_drugNames
+  #   }
+  #   
+  #   selectizeInput(inputId="drug_input", 
+  #                  label=p("Drug",actionLink("drug_clear", " (Clear)", style='font-size:70%')), 
+  #                  choices=c('', displayedDrugNames), 
+  #                  selected = '', 
+  #                  multiple = FALSE, 
+  #                  options = list(maxOptions = 2*length(displayedDrugNames)))
+  # })
 }
 
 shinyApp(ui, server)
