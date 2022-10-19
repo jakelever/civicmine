@@ -6,7 +6,6 @@ library(dplyr)
 library(reshape2)
 library(RColorBrewer)
 library(data.table)
-library(R.utils)
 
 # Weird hack as R sometimes "forgets" its working directory
 wd <- setwd(".")
@@ -18,8 +17,8 @@ if (!file.exists('google-analytics.js'))
   file.create('google-analytics.js')
 }
 
-collatedFilename <- 'civicmine_collated.tsv.gz'
-sentencesFilename <- 'civicmine_sentences.tsv.gz'
+collatedFilename <- 'civicmine_collated.tsv'
+sentencesFilename <- 'civicmine_sentences.tsv'
 civicdbFilename <- 'nightly-ClinicalEvidenceSummaries.tsv'
 
 collatedFilename <- normalizePath(collatedFilename)
