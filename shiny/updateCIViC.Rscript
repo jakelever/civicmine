@@ -1,15 +1,12 @@
 library(data.table)
-library(curl)
 
 civicURL <- 'https://civicdb.org/downloads/nightly/nightly-ClinicalEvidenceSummaries.tsv'
-tempFilename <- '/srv/shiny-server/civicmine/nightly-ClinicalEvidenceSummaries.tsv.tmp'
-outFilename <- '/srv/shiny-server/civicmine/nightly-ClinicalEvidenceSummaries.tsv'
+tempFilename <- 'nightly-ClinicalEvidenceSummaries.tsv.tmp'
+outFilename <- 'nightly-ClinicalEvidenceSummaries.tsv'
 
-h <- new_handle()
-handle_setopt(h, ssl_verifyhost = 0, ssl_verifypeer=0)
-curl_download(url=civicURL, tempFilename, handle = h)
+download.file(civicURL, tempFilename, method='curl')
 
-expectedColumns <- c('pubmed_id','entrez_id','doid','drugs','evidence_type','variant')
+expectedColumns <- c('pubmed_id','entrez_id','doid','drugs','evidence_type','variant','phenotypes')
 civicdb <- fread(tempFilename,sep='\t',header=T)
 
 civicdb$pubmed_id <- 0
