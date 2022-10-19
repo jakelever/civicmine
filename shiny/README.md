@@ -9,7 +9,7 @@ To get it running, follow the steps below:
    - Navigate to this directory (shiny/) if needed using the file viewer in the bottom-right of RStudio
    - Set the current working directory to the Shiny folder (under More -> Set As Working Directory in the file viewer)
 3. Install prerequisite R packages
-   - Run `install.packages(c("shiny", "data.table", "DT", "R.utils", "plotly", "plyr", "dplyr", "reshape2", "RColorBrewer"))` in the R terminal
+   - Run `install.packages(c("shiny", "data.table", "DT", "plotly", "plyr", "dplyr", "reshape2", "RColorBrewer"))` in the R terminal
 4. Run the **updateCIViC.R** script which should fetch the latest release of CIViC, adapt it and do some checks
    - Open the file and then press `Ctrl + Alt + R` to run all the R commands in the file
 5. Copy in the **civicmine_collated.tsv.gz** and **civicmine_sentences.tsv.gz** files from the latest release of CIViCmine available from [Zenodo](https://doi.org/10.5281/zenodo.1472826).
