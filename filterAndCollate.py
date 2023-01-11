@@ -46,7 +46,7 @@ if __name__ == '__main__':
 				if inputFilesHeader is None:
 					inputFilesHeader = headers
 
-					outUnfiltered.write("\t".join(headers) + '\n')
+					outUnfiltered.write("matching_id\t" + "\t".join(headers) + '\n')
 					outSentences.write("matching_id\t" + "\t".join(headers) + '\n')
 				else:
 					assert inputFilesHeader == headers, "Headers don't match expected in file %s" % inputFile
@@ -68,9 +68,7 @@ if __name__ == '__main__':
 					if pmid in pmidsAlreadySeen:
 						continue
 					pmidsInThisFile.add(pmid)
-
-					outUnfiltered.write("\t".join(r[h] for h in headers) + "\n")
-
+					
 					r['variant_group'] = r['variant_normalized']
 
 					r['variant_withsub'] = r['variant_normalized']
@@ -78,15 +76,16 @@ if __name__ == '__main__':
 						substitution = r['variant_id'].split('|')[1]
 						r['variant_withsub'] = '%s (substitution)' % substitution
 
+					collatedKey = tuple( [ r[k] for k in collatedKeyFields.split(',') ] )
+					matchingID = hashlib.md5("|".join(list(collatedKey)).encode('utf-8')).hexdigest()
 
+					outUnfiltered.write(matchingID + "\t" + "\t".join(r[h] for h in headers) + "\n")
 
 					keepIt = evidencetype_prob > threshold and pmid != 'None'
 					if keepIt:
-						collatedKey = tuple( [ r[k] for k in collatedKeyFields.split(',') ] )
 						collated[collatedKey].add(pmid)
 
 						# Make a field using the key data that can be used to match between tables
-						matchingID = hashlib.md5("|".join(list(collatedKey)).encode('utf-8')).hexdigest()
 						collatedMatchingID[collatedKey] = matchingID
 
 						outSentences.write(matchingID + "\t" + "\t".join(r[h] for h in headers) + "\n")
