@@ -1,0 +1,30 @@
+
+import os
+
+localrules: final_files
+
+assert os.getenv('MODE') in ['full','test'], "Must set environmental variable MODE to full or test"
+
+if os.getenv('MODE') == 'full':
+	source_dir = os.getenv('BIOTEXT')
+	assert source_dir and os.path.isdir(source_dir), "For full run, must set environmental variable BIOTEXT to directory with BIOTEXT BioC XML files"
+	source_dir = source_dir.rstrip('/')
+	work_dir = 'working'
+elif os.getenv('MODE') == 'test':
+	source_dir = 'test_data'
+	work_dir = 'test_working'
+
+mesh_age_files = [ '%s/mesh_ages/%s' % (work_dir,f.replace('.bioc.xml','.json')) for f in os.listdir(source_dir) if f.startswith('pubmed') ]
+
+rule final_files:
+	input: f"{work_dir}/cancer_mesh_ages.json"
+
+rule link_cancers_with_mesh_ages:
+	input: f"{source_dir}/{{f}}.bioc.xml"
+	output: f"{work_dir}/mesh_ages/{{f}}.json"
+	shell: "python linkCancersWithMeSHAges.py --biocFile {input} --cancers ../working/terms_cancers_pediatric.tsv --outFile {output}"
+
+rule combine:
+	input: mesh_age_files
+	output: f"{work_dir}/cancer_mesh_ages.json"
+	shell: f"python combineCancersMeSHAges.py --meshDataDir {work_dir}/mesh_ages/ --outFile {{output}}"
