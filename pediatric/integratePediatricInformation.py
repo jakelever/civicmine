@@ -45,7 +45,6 @@ def getMeSHTerms(requested_pmids):
 def main():
 	parser = argparse.ArgumentParser(description='Take in a CIViCmine output and integrate in information about the pediatric status')
 	parser.add_argument('--inSentences',required=True,type=str,help='Input sentences file')
-	parser.add_argument('--inCollated',required=True,type=str,help='Input collated file')
 	parser.add_argument('--cancers',required=True,type=str,help='Cancer list')
 	parser.add_argument('--meshAges',required=True,type=str,help='MeSH data on different cancer types')
 	parser.add_argument('--outSentences',required=True,type=str,help='Output sentences file')
@@ -74,75 +73,31 @@ def main():
 	
 	print("Loading MeSH data on cancer types...")
 	with open(args.meshAges) as f:
-		mesh_data = json.load(f)
+		mesh_ages = json.load(f)
 		
-		
-	#pediatric_cancers = {}
-	
-	if False:
-		for doid in mesh_data:
-			mesh_data[doid]['mesh'] = Counter({ k:v for k,v in mesh_data[doid]['mesh'].items() if k in mesh_age_groups })
-			
-			total = sum(mesh_data[doid]['mesh'].values())
-			if total == 0:
-				continue
-			
-			adult_count = mesh_data[doid]['mesh']['Adult']
-			pediatric_count = total - adult_count
-			
-			pediatric_perc = pediatric_count / total
-			
-			predominantly_pediatric = total > 100 and pediatric_perc > 0.5
-			pediatric_in_name = any (k in mesh_data[doid]['name'].lower() for k in pediatric_keywords)
-			
-			if predominantly_pediatric or pediatric_in_name:
-				pediatric_cancers[doid] = mesh_data[doid]['name']
-		
-	cancer_age_spread = {}
+	#cancer_age_spread = {}
+	pediatric_cancers, adult_cancers = set(), set()
 	for name,counts in mesh_ages.items():
 		pediatric_count = sum( count for age_group,count in counts.items() if age_group in mesh_pediatric_groups )
+		adult_count = sum( count for age_group,count in counts.items() if age_group in mesh_adult_groups )
 
-	
-	cancer_paper_counts = Counter()
-	pediatric_cancer_paper_counts = Counter()
-	for pmid,info in mesh_data.items():
-		#print(pmid, info)
-		cancer_names = info['cancer_names']
-		mesh_age = info['mesh_age']
-		publication_types = info['publication_types']
-		
-		if mesh_age:
-			for c in cancer_names:
-				cancer_paper_counts[c] += 1
-				
-			has_pediatric_age = any( t in mesh_pediatric_groups for t in mesh_age)
-			if has_pediatric_age:
-				for c in cancer_names:
-					pediatric_cancer_paper_counts[c] += 1
-					
-	for name,cancer_paper_count in cancer_paper_counts.items():
-		pediatric_cancer_paper_count = pediatric_cancer_paper_counts[name]
-		
-		pediatric_perc = pediatric_cancer_paper_count / cancer_paper_count
-		
-		pediatric_in_name = any (k in name.lower() for k in pediatric_keywords)
-		
-		predominantly_pediatric = cancer_paper_count > 100 and pediatric_perc > 0.5
-		
-		if predominantly_pediatric or pediatric_in_name:
+		total_count = pediatric_count + adult_count
+		pediatric_percentage = pediatric_count / total_count
+
+		#cancer_age_spread[name] = {'total':total_count, 'pediatric_percentage':pediatric_count / total_count}
+
+		if total_count > 100 and pediatric_count > 0.7:
 			pediatric_cancers.add(name)
-		#print(name, perc, pediatric_cancer_paper_count, cancer_paper_count)
-			
-			
+		elif total_count > 100 and pediatric_count < 0.3:
+			adult_cancers.add(name)
+
 	print("Identified %d cancer types that are predominantly pediatric" % len(pediatric_cancers))
+	print("Identified %d cancer types that are predominantly adult" % len(adult_cancers))
 	
 	print("Loading CIViCmine sentences and collated files...")
 	with open(args.inSentences, encoding='utf8') as inF:
 		reader = csv.DictReader(inF, delimiter="\t")
 		sentences = [ row for row in reader ]
-	#with open(args.inCollated, encoding='utf8') as inF:
-	#	reader = csv.DictReader(inF, delimiter="\t")
-	#	collated = [ row for row in reader ]
 		
 	pmids = sorted(set([ int(s['pmid']) for s in sentences]))
 	print("Gathering MeSH terms for %d documents" % len(pmids))
@@ -167,26 +122,19 @@ def main():
 				
 		is_pediatric_journal = any( k in s['journal'].lower() for k in journal_keywords)
 		
-		specific_pediatric_cancer_mention = s['cancer_normalized'].startswith('childhood')
-		is_pediatric_cancer = specific_pediatric_cancer_mention or s['cancer_normalized'] in pediatric_cancers
-		if s['cancer_normalized'].startswith('childhood'):
-			tmp_cancer = s['cancer_normalized'].replace('childhood','').strip().lower()
-			assert tmp_cancer in cancer_synonyms, "Unknown cancer for %s" % tmp_cancer
-			assert len(cancer_synonyms[tmp_cancer]) == 1, "Ambigiuity for %s" % tmp_cancer
-			s['cancer_id'],s['cancer_normalized'] = cancer_synonyms[tmp_cancer][0]
-			print("Changed ", tmp_cancer, s['cancer_id'],s['cancer_normalized'])
-		
+		specific_pediatric_cancer_mention = any( k in s['cancer_text'].lower() for k in pediatric_keywords )
+
+		is_pediatric_cancer = s['cancer_normalized'] in pediatric_cancers
+		is_adult_cancer = s['cancer_normalized'] in adult_cancers
+		is_pediatric_not_adult_cancer = is_pediatric_cancer and not is_adult_cancer
 		
 		is_pediatric_paper = any( k in mesh_for_documents[pmid] for k in mesh_pediatric_groups )
 		is_adult_paper = any( k in mesh_for_documents[pmid] for k in mesh_adult_groups )
 		is_pediatric_not_adult_paper = is_pediatric_paper and not is_adult_paper
 		
-		
-		
-		#is_pediatric = is_pediatric_journal or is_pediatric_cancer or is_pediatric_not_adult_paper
-		
+		is_pediatric = specific_pediatric_cancer_mention or is_pediatric_not_adult_cancer or is_pediatric_not_adult_paper
 		#is_pediatric = specific_pediatric_cancer_mention # is_pediatric_not_adult_paper
-		is_pediatric = is_pediatric_not_adult_paper
+		#is_pediatric = is_pediatric_not_adult_paper
 		
 		s['is_pediatric'] = is_pediatric
 		
