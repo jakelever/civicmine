@@ -29,10 +29,15 @@ rule get_biowordlists:
 	output: f"{work_dir}/biowordlists.flag"
 	shell: f"mkdir -p {work_dir}/biowordlists && zenodo_get -o {work_dir}/biowordlists https://doi.org/10.5281/zenodo.1286661 && touch {{output}}"
 
-rule prepare_wordlist:
+rule prep_pediatric_cancerlist:
 	input: f"{work_dir}/biowordlists.flag"
+	output: f"{work_dir}/terms_cancers_pediatric.tsv"
+	shell: f"python pediatric/modifyCancerList.py --old {work_dir}/biowordlists/terms_cancers.tsv --syndromes pediatric/syndromes.tsv --extra pediatric/ph_cancers.tsv --outFile {{output}}"
+
+rule prepare_wordlist:
+	input: f"{work_dir}/biowordlists.flag", f"{work_dir}/terms_cancers_pediatric.tsv"
 	output: f"{work_dir}/civicmine_terms.pickle"
-	shell: f"python wordlistLoader.py --genes {work_dir}/biowordlists/terms_genes.tsv --cancers {work_dir}/biowordlists/terms_cancers.tsv --drugs {work_dir}/biowordlists/terms_drugs.tsv --conflicting {work_dir}/biowordlists/terms_conflicting.tsv --variants {work_dir}/biowordlists/terms_variants.tsv --wordlistPickle {{output}}"
+	shell: f"python wordlistLoader.py --genes {work_dir}/biowordlists/terms_genes.tsv --cancers {work_dir}/terms_cancers_pediatric.tsv --drugs {work_dir}/biowordlists/terms_drugs.tsv --conflicting {work_dir}/biowordlists/terms_conflicting.tsv --variants {work_dir}/biowordlists/terms_variants.tsv --wordlistPickle {{output}}"
 
 rule parse_and_find_entities:
 	input:
@@ -45,19 +50,26 @@ rule apply_models_to_sentences:
 	input:
 		sentences=f"{work_dir}/sentenceData/{{f}}.json",
 		wordlist=f"{work_dir}/civicmine_terms.pickle",
-		biowordlists=f"{work_dir}/biowordlists.flag",
 		models="models.flag"
 	output:
 		f"{work_dir}/kb/{{f}}.tsv"
-	shell: f"python applyModelsToSentences.py --models models/Diagnostic.model,models/Predictive.model,models/Prognostic.model,models/Predisposing.model,models/AssociatedVariant.model --filterTerms filterTerms.txt --wordlistPickle {{input.wordlist}} --genes {work_dir}/biowordlists/terms_genes.tsv --cancerTypes {work_dir}/biowordlists/terms_cancers.tsv --drugs {work_dir}/biowordlists/terms_drugs.tsv --variants {work_dir}/biowordlists/terms_variants.tsv --sentenceFile {{input.sentences}} --outData {{output}}"
+	shell: f"python applyModelsToSentences.py --models models/Diagnostic.model,models/Predictive.model,models/Prognostic.model,models/Predisposing.model,models/AssociatedVariant.model --filterTerms filterTerms.txt --wordlistPickle {{input.wordlist}} --genes {work_dir}/biowordlists/terms_genes.tsv --cancerTypes {work_dir}/terms_cancers_pediatric.tsv --drugs {work_dir}/biowordlists/terms_drugs.tsv --variants {work_dir}/biowordlists/terms_variants.tsv --sentenceFile {{input.sentences}} --outData {{output}}"
 
 rule filter_and_collated:
 	input: kb_files
 	output:
+		unfiltered=f"{work_dir}/tmp_civicmine_unfiltered.tsv",
+		collated=f"{work_dir}/tmp_civicmine_collated.tsv",
+		sentences=f"{work_dir}/tmp_civicmine_sentences.tsv",
+	shell: f"python filterAndCollate.py --inData {work_dir}/kb/ --outUnfiltered {{output.unfiltered}} --outCollated {{output.collated}} --outSentences {{output.sentences}}"
+
+rule pediatric:
+	input: f"{work_dir}/tmp_civicmine_unfiltered.tsv"
+	output:
 		unfiltered=f"{work_dir}/civicmine_unfiltered.tsv",
 		collated=f"{work_dir}/civicmine_collated.tsv",
 		sentences=f"{work_dir}/civicmine_sentences.tsv",
-	shell: f"python filterAndCollate.py --inData {work_dir}/kb/ --outUnfiltered {{output.unfiltered}} --outCollated {{output.collated}} --outSentences {{output.sentences}}"
+	shell: f"python pediatric/integratePediatricInformation.py --inUnfiltered {{input}} --cancers {work_dir}/terms_cancers_pediatric.tsv --meshAges pediatric/working/cancer_mesh_ages.json --outUnfiltered {{output.unfiltered}} --outSentences {{output.sentences}} --outCollated {{output.collated}}"
 
 rule gzip:
 	input: "{f}"

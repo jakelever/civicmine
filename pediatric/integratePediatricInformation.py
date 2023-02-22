@@ -21,6 +21,7 @@ def getMeSHTerms(requested_pmids):
 	document_mesh = defaultdict(set)
 	for pmid_chunk in tqdm(list(chunks(requested_pmids, 500))):
 		#print("  Progress:", len(document_mesh))
+		print(pmid_chunk)
 		handle = Entrez.efetch(db='pubmed', id=pmid_chunk, rettype="gb", retmode="xml")
 		xml_data = handle.read().decode('utf-8')
 		for event, elem in etree.iterparse(io.StringIO(xml_data), events=("start", "end", "start-ns", "end-ns")):
@@ -44,16 +45,24 @@ def getMeSHTerms(requested_pmids):
 
 def main():
 	parser = argparse.ArgumentParser(description='Take in a CIViCmine output and integrate in information about the pediatric status')
-	parser.add_argument('--inSentences',required=True,type=str,help='Input sentences file')
+	parser.add_argument('--inUnfiltered',required=True,type=str,help='Input sentences file')
 	parser.add_argument('--cancers',required=True,type=str,help='Cancer list')
 	parser.add_argument('--meshAges',required=True,type=str,help='MeSH data on different cancer types')
+	parser.add_argument('--outUnfiltered',required=True,type=str,help='Output unfiltered file')
 	parser.add_argument('--outSentences',required=True,type=str,help='Output sentences file')
 	parser.add_argument('--outCollated',required=True,type=str,help='Output collated file')
 	args = parser.parse_args()
+
+	thresholds = {}
+	thresholds['AssociatedVariant'] = 0.7
+	thresholds['Diagnostic'] = 0.63
+	thresholds['Predictive' ] = 0.93
+	thresholds['Predisposing'] = 0.86
+	thresholds['Prognostic'] = 0.65
 	
 	mesh_pediatric_groups = set(['Pediatrics','Infant','Infant, Newborn','Child','Child, Preschool','Adolescent'])
 	mesh_adult_groups = set(['Adult','Aged','Middle Aged','Young Adult','Aged, 80 and over','Frail Elderly'])
-	mesh_age_groups = mesh_pediatric_groups.union(mesh_adult_groups)
+	#mesh_age_groups = mesh_pediatric_groups.union(mesh_adult_groups)
 	
 	pediatric_keywords = [ 'pediatric', 'paediatric', 'childhood', 'infantile', 'juvenile', 'teenage', 'adolescent' ]
 	
@@ -86,20 +95,21 @@ def main():
 
 		#cancer_age_spread[name] = {'total':total_count, 'pediatric_percentage':pediatric_count / total_count}
 
-		if total_count > 100 and pediatric_count > 0.7:
-			pediatric_cancers.add(name)
-		elif total_count > 100 and pediatric_count < 0.3:
-			adult_cancers.add(name)
+		if total_count > 100:
+			if pediatric_percentage > 0.7:
+				pediatric_cancers.add(name)
+			elif pediatric_percentage < 0.3:
+				adult_cancers.add(name)
 
 	print("Identified %d cancer types that are predominantly pediatric" % len(pediatric_cancers))
 	print("Identified %d cancer types that are predominantly adult" % len(adult_cancers))
 	
-	print("Loading CIViCmine sentences and collated files...")
-	with open(args.inSentences, encoding='utf8') as inF:
+	print("Loading unfiltered CIViCmine sentences...")
+	with open(args.inUnfiltered, encoding='utf8') as inF:
 		reader = csv.DictReader(inF, delimiter="\t")
-		sentences = [ row for row in reader ]
+		src_sentences = [ row for row in reader ]
 		
-	pmids = sorted(set([ int(s['pmid']) for s in sentences]))
+	pmids = sorted(set([ int(s['pmid']) for s in src_sentences]))
 	print("Gathering MeSH terms for %d documents" % len(pmids))
 	mesh_for_documents = getMeSHTerms(pmids)
 			
@@ -111,14 +121,24 @@ def main():
 		
 	collatedKeyFields = 'evidencetype,gene_hugo_id,gene_entrez_id,gene_normalized,cancer_id,cancer_normalized,drug_id,drug_normalized,variant_group,variant_withsub'.split(',')
 		
-	tidied_sentences = []
+	out_sentences, out_unfiltered = [], []
 	collated_by_matching_id = {}
 	# Do stuff
-	for s in sentences:
+	for s in src_sentences:
 		if s['gene_text'].lower() == 'osteosarcoma':
 			continue
 	
 		pmid = int(s['pmid'])
+
+		s['variant_group'] = s['variant_normalized']
+		s['variant_withsub'] = s['variant_normalized']
+		if s['variant_normalized'] == 'substitution':
+			substitution = s['variant_id'].split('|')[1]
+			s['variant_withsub'] = '%s (substitution)' % substitution
+
+		collatedKey = tuple( [ s[k] for k in collatedKeyFields ] )
+		matching_id = hashlib.md5("|".join(list(collatedKey)).encode('utf-8')).hexdigest()
+		s['matching_id'] = matching_id
 				
 		is_pediatric_journal = any( k in s['journal'].lower() for k in journal_keywords)
 		
@@ -137,30 +157,31 @@ def main():
 		#is_pediatric = is_pediatric_not_adult_paper
 		
 		s['is_pediatric'] = is_pediatric
-		
-		
-		s['variant_group'] = s['variant_normalized']
-		s['variant_withsub'] = s['variant_normalized']
-		if s['variant_normalized'] == 'substitution':
-			substitution = s['variant_id'].split('|')[1]
-			s['variant_withsub'] = '%s (substitution)' % substitution
 
-		collatedKey = tuple( [ s[k] for k in collatedKeyFields ] )
-		matching_id = hashlib.md5("|".join(list(collatedKey)).encode('utf-8')).hexdigest()
-		collated_by_matching_id[matching_id] = collatedKey
-		s['matching_id'] = matching_id
+		sentence_text, formatted_sentence_text = s['sentence'], s['formatted_sentence']
+		del s['sentence']
+		del s['formatted_sentence']
+		s['sentence'] = sentence_text
+		s['formatted_sentence'] = formatted_sentence_text
+
+		out_unfiltered.append(s)
 		
-		if is_pediatric:
-			ped_paper_counts[matching_id].add(pmid)
-		all_paper_counts[matching_id].add(pmid)
-		
-		tidied_sentences.append(s)
-		
-		
-	sentences = tidied_sentences
+		evidencetype = s['evidencetype']
+		evidencetype_prob = float(s['evidencetype_prob'])
+		threshold = thresholds[evidencetype]
+		above_threshold = evidencetype_prob > threshold
+
+		if above_threshold:
+			collated_by_matching_id[matching_id] = collatedKey
+			if is_pediatric:
+				ped_paper_counts[matching_id].add(pmid)
+			all_paper_counts[matching_id].add(pmid)
+			
+			out_sentences.append(s)
+
 		
 	print("Calculating paper counts for new collated file...")
-	collated = []
+	out_collated = []
 	for matching_id,collatedKey in collated_by_matching_id.items():
 		c = {}
 		c['matching_id'] = matching_id
@@ -169,23 +190,31 @@ def main():
 		
 		c['citation_count'] = len(all_paper_counts[matching_id])
 		c['ped_citation_count'] = len(ped_paper_counts[matching_id]) if matching_id in ped_paper_counts else 0
-		collated.append(c)
+		out_collated.append(c)
 		
-	print("Saving new sentence and collated files with pediatric data...")
-	with open(args.outSentences, 'w', newline='', encoding='utf8') as outF:
-		fieldnames = sentences[0].keys()
+	print("Saving new unfiltered, sentence and collated files with pediatric data...")
+	with open(args.outUnfiltered, 'w', newline='', encoding='utf8') as outF:
+		fieldnames = out_unfiltered[0].keys()
 		writer = csv.DictWriter(outF, fieldnames=fieldnames, delimiter="\t")
 
 		writer.writeheader()
-		for s in sentences:
+		for s in out_unfiltered:
+			writer.writerow(s)
+
+	with open(args.outSentences, 'w', newline='', encoding='utf8') as outF:
+		fieldnames = out_sentences[0].keys()
+		writer = csv.DictWriter(outF, fieldnames=fieldnames, delimiter="\t")
+
+		writer.writeheader()
+		for s in out_sentences:
 			writer.writerow(s)
 			
 	with open(args.outCollated, 'w', newline='', encoding='utf8') as outF:
-		fieldnames = collated[0].keys()
+		fieldnames = out_collated[0].keys()
 		writer = csv.DictWriter(outF, fieldnames=fieldnames, delimiter="\t")
 
 		writer.writeheader()
-		for s in collated:
+		for s in out_collated:
 			writer.writerow(s)
 			
 	print("%d of %d associations were flagged as pediatric" % (len(ped_paper_counts),len(all_paper_counts)))
