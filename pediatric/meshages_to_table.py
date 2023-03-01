@@ -19,6 +19,9 @@ def main():
 		reformatted.append(row)
 
 	df = pd.DataFrame(reformatted)
+	df = df.fillna(0)
+	df['total'] = df.drop('cancer', axis=1).sum(axis=1)
+	print(df)
 	df.to_csv(args.outTSV, sep="\t", index=False)
 	print(f"Saved {df.shape[0]} rows to {args.outTSV}")
 
