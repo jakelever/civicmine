@@ -20,8 +20,6 @@ def chunks(lst, n):
 def getMeSHTerms(requested_pmids):
 	document_mesh = defaultdict(set)
 	for pmid_chunk in tqdm(list(chunks(requested_pmids, 500))):
-		#print("  Progress:", len(document_mesh))
-		print(pmid_chunk)
 		handle = Entrez.efetch(db='pubmed', id=pmid_chunk, rettype="gb", retmode="xml")
 		xml_data = handle.read().decode('utf-8')
 		for event, elem in etree.iterparse(io.StringIO(xml_data), events=("start", "end", "start-ns", "end-ns")):

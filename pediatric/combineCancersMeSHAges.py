@@ -20,6 +20,8 @@ def main():
 			tmp_data = json.load(f)
 			data_by_paper.update(tmp_data)
 
+	print(f"Loaded data from {len(data_by_paper)} papers")
+
 	cancer_age_counts = defaultdict(Counter)
 
 	print("Aggregating cancer age counts...")
