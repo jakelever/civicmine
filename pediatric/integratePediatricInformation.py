@@ -63,6 +63,7 @@ def main():
 	#mesh_age_groups = mesh_pediatric_groups.union(mesh_adult_groups)
 	
 	pediatric_keywords = [ 'pediatric', 'paediatric', 'childhood', 'infantile', 'juvenile', 'teenage', 'adolescent' ]
+	adult_keywords = [ 'adult', 'middle aged', 'elderly' ]
 	
 	print("Loading cancer types...")
 	cancer_synonyms = defaultdict(list)
@@ -141,6 +142,7 @@ def main():
 		is_pediatric_journal = any( k in s['journal'].lower() for k in journal_keywords)
 		
 		specific_pediatric_cancer_mention = any( k in s['cancer_text'].lower() for k in pediatric_keywords )
+		specific_adult_cancer_mention = any( k in s['cancer_text'].lower() for k in adult_keywords )
 
 		is_pediatric_cancer = s['cancer_normalized'] in pediatric_cancers
 		is_adult_cancer = s['cancer_normalized'] in adult_cancers
@@ -150,7 +152,7 @@ def main():
 		is_adult_paper = any( k in mesh_for_documents[pmid] for k in mesh_adult_groups )
 		is_pediatric_not_adult_paper = is_pediatric_paper and not is_adult_paper
 		
-		is_pediatric = specific_pediatric_cancer_mention or is_pediatric_not_adult_cancer or is_pediatric_not_adult_paper
+		is_pediatric = (specific_pediatric_cancer_mention or is_pediatric_not_adult_cancer or is_pediatric_not_adult_paper) and not specific_adult_cancer_mention
 		#is_pediatric = specific_pediatric_cancer_mention # is_pediatric_not_adult_paper
 		#is_pediatric = is_pediatric_not_adult_paper
 		
