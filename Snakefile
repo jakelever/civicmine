@@ -53,23 +53,15 @@ rule apply_models_to_sentences:
 		models="models.flag"
 	output:
 		f"{work_dir}/kb/{{f}}.tsv"
-	shell: f"python applyModelsToSentences.py --models models/Diagnostic.model,models/Predictive.model,models/Prognostic.model,models/Predisposing.model,models/AssociatedVariant.model --filterTerms filterTerms.txt --wordlistPickle {{input.wordlist}} --genes {work_dir}/biowordlists/terms_genes.tsv --cancerTypes {work_dir}/terms_cancers_pediatric.tsv --drugs {work_dir}/biowordlists/terms_drugs.tsv --variants {work_dir}/biowordlists/terms_variants.tsv --sentenceFile {{input.sentences}} --outData {{output}}"
+	shell: f"python applyModelsToSentences.py --models models/Diagnostic.model,models/Predictive.model,models/Prognostic.model,models/Predisposing.model,models/AssociatedVariant.model --filterTerms filterTerms.txt --wordlistPickle {{input.wordlist}} --genes {work_dir}/biowordlists/terms_genes.tsv --cancerTypes {work_dir}/terms_cancers_pediatric.tsv --drugs {work_dir}/biowordlists/terms_drugs.tsv --variants {work_dir}/biowordlists/terms_variants.tsv --variantStopwords stopwords_variants.txt --sentenceFile {{input.sentences}} --outData {{output}}"
 
 rule filter_and_collated:
 	input: kb_files
 	output:
-		unfiltered=f"{work_dir}/tmp_civicmine_unfiltered.tsv",
-		collated=f"{work_dir}/tmp_civicmine_collated.tsv",
-		sentences=f"{work_dir}/tmp_civicmine_sentences.tsv",
-	shell: f"python filterAndCollate.py --inData {work_dir}/kb/ --outUnfiltered {{output.unfiltered}} --outCollated {{output.collated}} --outSentences {{output.sentences}}"
-
-rule pediatric:
-	input: f"{work_dir}/tmp_civicmine_unfiltered.tsv"
-	output:
 		unfiltered=f"{work_dir}/civicmine_unfiltered.tsv",
 		collated=f"{work_dir}/civicmine_collated.tsv",
 		sentences=f"{work_dir}/civicmine_sentences.tsv",
-	shell: f"python pediatric/integratePediatricInformation.py --inUnfiltered {{input}} --cancers {work_dir}/terms_cancers_pediatric.tsv --meshAges pediatric/working/cancer_mesh_ages.json --outUnfiltered {{output.unfiltered}} --outSentences {{output.sentences}} --outCollated {{output.collated}}"
+	shell: f"python filterAndCollate.py --inData {work_dir}/kb/ --outUnfiltered {{output.unfiltered}} --outCollated {{output.collated}} --outSentences {{output.sentences}}"
 
 rule gzip:
 	input: "{f}"

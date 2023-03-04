@@ -84,12 +84,15 @@ def applyFinalFilter(row):
 
 	return True
 
-def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cancerTypes,drugs,variants,outData,verbose=False):
+def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cancerTypes,drugs,variants,variantStopwordsFile,outData,verbose=False):
 	if verbose:
 		print("%s : start" % now())
 
 	thresholds = {}
 	thresholds['AssociatedVariant'] = 0.7
+
+	with open(variantStopwordsFile) as f:
+		variantStopwords = [ line.strip() for line in f ]
 
 	models = {}
 	assert isinstance(modelFilenames,list)
@@ -155,7 +158,7 @@ def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cance
 		print("%s : parsed" % now())
 
 	startTime = time.time()
-	ner = kindred.EntityRecognizer(lookup=termLookup,detectVariants=True,detectFusionGenes=True,detectMicroRNA=True,acronymDetectionForAmbiguity=True,mergeTerms=True,removePathways=True)
+	ner = kindred.EntityRecognizer(lookup=termLookup,detectVariants=True,variantStopwords=variantStopwords,detectFusionGenes=True,detectMicroRNA=True,acronymDetectionForAmbiguity=True,mergeTerms=True,removePathways=True)
 	ner.annotate(corpus)
 	timers['ner'] += time.time() - startTime
 	if verbose:
@@ -325,10 +328,11 @@ if __name__ == '__main__':
 	parser.add_argument('--cancerTypes',required=True)
 	parser.add_argument('--drugs',required=True)
 	parser.add_argument('--variants',required=True)
+	parser.add_argument('--variantStopwords',required=True,type=str,help='File of variants to skip')
 	parser.add_argument('--outData',required=True)
 	parser.add_argument('--verbose', action='store_true', help='Whether to print out information about run')
 
 	args = parser.parse_args()
 
-	civicmine(args.sentenceFile,args.models.split(','),args.filterTerms,args.wordlistPickle,args.genes,args.cancerTypes,args.drugs,args.variants,args.outData,verbose=args.verbose)
+	civicmine(args.sentenceFile,args.models.split(','),args.filterTerms,args.wordlistPickle,args.genes,args.cancerTypes,args.drugs,args.variants,args.variantStopwords,args.outData,verbose=args.verbose)
 
