@@ -71,10 +71,23 @@ def main():
 	print(f"Got {len(id_to_main)} cancer types\n")
 
 	print("Adding age terms in to every synonym")
+	all_synonyms = set( s for synonym_list in id_to_synonyms.values() for s in synonym_list )
 	for term_id in id_to_main:
 		synonyms = id_to_synonyms[term_id]
-		synonyms += [ f"{at} {s}" for s in synonyms for at in age_terms ]
-		id_to_synonyms[term_id] = sorted(synonyms)
+
+		# This bit inserts pediatric words inside cancer names (if the last part matches another cancer name)
+		extra_synonyms = []
+		for synonym in synonyms:
+			tokens = synonym.split()
+			for i in range(1,len(tokens)-1):
+				before = " ".join(tokens[:i])
+				after = " ".join(tokens[i:])
+				if after in all_synonyms:
+					extra_synonyms += [ f"{before} {at} {after}" for at in age_terms ]
+
+		extra_synonyms += [ f"{at} {s}" for s in synonyms for at in age_terms ]
+
+		id_to_synonyms[term_id] = sorted(set(synonyms + extra_synonyms))
 
 	print("Outputting...")
 	with open(args.outFile,'w') as outF:
