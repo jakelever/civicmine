@@ -38,6 +38,19 @@ def cleanCorpus(corpus):
 		if doc.metadata['title']:
 			doc.metadata['title'] = tidyWhitespace(fixDashes(doc.metadata['title']))
 
+# Deal with table data stored in tab-delimited form
+def splitTabbedCorpus(corpus):
+	new_corpus = kindred.Corpus()
+	for doc in corpus.documents:
+		for block in doc.text.split('\t'):
+			block = block.strip()
+			if block:
+				new_doc = kindred.Document(block)
+				new_doc.metadata = doc.metadata
+				new_corpus.addDocument(new_doc)
+
+	return new_corpus
+
 def parseAndFindEntities(biocFile,filterTermsFile,wordlistPickle,variantStopwordsFile,outSentencesFilename,verbose=False):
 	if verbose:
 		print("%s : start" % now())
@@ -69,6 +82,8 @@ def parseAndFindEntities(biocFile,filterTermsFile,wordlistPickle,variantStopword
 			startTime = time.time()
 			corpus = filterCorpus(corpus,filterTerms)
 			timers['filter'] += time.time() - startTime
+
+		corpus = splitTabbedCorpus(corpus)
 
 		cleanCorpus(corpus)
 
