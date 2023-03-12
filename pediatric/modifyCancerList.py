@@ -63,7 +63,7 @@ def main():
 				id_to_synonyms[term_id] = synonyms
 	print(f"Got {len(id_to_main)} cancer types\n")
 
-	age_terms = ['adult','juvenile','pediatric','paediatric','childhood','adolescent','infantile']
+	age_terms = ['adult','juvenile','pediatric','paediatric','childhood','adolescent','infantile','infant', 'children']
 	age_regexes = [ re.compile(r'\b%s\b' % t, re.I) for t in age_terms ]
 
 	print("Filtering out cancer terms with age terms in their main name")

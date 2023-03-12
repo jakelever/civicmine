@@ -62,7 +62,7 @@ def main():
 	mesh_adult_groups = set(['Adult','Aged','Middle Aged','Young Adult','Aged, 80 and over','Frail Elderly'])
 	#mesh_age_groups = mesh_pediatric_groups.union(mesh_adult_groups)
 	
-	pediatric_keywords = [ 'pediatric', 'paediatric', 'childhood', 'infantile', 'juvenile', 'teenage', 'adolescent' ]
+	pediatric_keywords = [ 'pediatric', 'paediatric', 'childhood', 'infantile', 'juvenile', 'teenage', 'adolescent', 'infant', 'children' ]
 	adult_keywords = [ 'adult', 'middle aged', 'elderly' ]
 	
 	print("Loading cancer types...")
