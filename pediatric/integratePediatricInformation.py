@@ -4,11 +4,13 @@ from collections import defaultdict,Counter
 import xml.etree.cElementTree as etree
 import io
 import re
+import http
 import unicodedata
 import calendar
 import json
 import hashlib
 from tqdm import tqdm
+import time
 from Bio import Entrez
 Entrez.email = 'jake.lever@glasgow.ac.uk'
 
@@ -17,11 +19,21 @@ def chunks(lst, n):
 	for i in range(0, len(lst), n):
 		yield lst[i:i + n]
 
+def fetchFromEUtils(pmid_chunk, retries = 10):
+	for _ in range(retries):
+		try:
+			handle = Entrez.efetch(db='pubmed', id=pmid_chunk, rettype="gb", retmode="xml")
+			xml_data = handle.read().decode('utf-8')
+			return xml_data
+		except http.client.IncompleteRead:
+			time.sleep(1)
+
+	raise RuntimeError(f"Unable to get PubMed data from EUtils with {retries=}")
+
 def getMeSHTerms(requested_pmids):
 	document_mesh = defaultdict(set)
 	for pmid_chunk in tqdm(list(chunks(requested_pmids, 500))):
-		handle = Entrez.efetch(db='pubmed', id=pmid_chunk, rettype="gb", retmode="xml")
-		xml_data = handle.read().decode('utf-8')
+		xml_data = fetchFromEUtils(pmid_chunk)
 		for event, elem in etree.iterparse(io.StringIO(xml_data), events=("start", "end", "start-ns", "end-ns")):
 			if event == "end" and elem.tag == "PubmedArticle":  # MedlineCitation'):
 				pmid_field = elem.find("./MedlineCitation/PMID")
