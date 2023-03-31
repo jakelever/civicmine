@@ -235,13 +235,21 @@ def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cance
 
 				sentenceStart = sentence.tokens[0].startPos
 
+				skip = False
+
 				relType = relation.relationType
 				entityData = {'cancer':['' for _ in range(5)], 'drug':['' for _ in range(5)], 'gene':['' for _ in range(5)] }
 				geneID = None
 				for entity in relation.entities:
+					startPos,endPos = entity.position[0]
+
 					if entity.entityType == 'gene':
 						assert geneID is None, 'Relation should only contain a single gene'
 						geneID = entity.entityID
+
+						afterText = doc.text[endPos:].strip()
+						if afterText.startswith('-AS') or afterText.startswith('et al'):
+							skip = True
 
 					if entity.externalID.startswith('combo'):
 						externalIDsplit = entity.externalID.split('|')
@@ -253,7 +261,7 @@ def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cance
 						normalizedTerm = getNormalizedTerm(entity.text,entity.externalID,IDToTerm)
 
 					assert len(entity.position) == 1, "Expecting entities that are contigious and have only one start and end position within the text"
-					startPos,endPos = entity.position[0]
+
 
 					tmp = []
 					tmp.append(entity.externalID)
@@ -266,6 +274,9 @@ def civicmine(sentenceFile,modelFilenames,filterTerms,wordlistPickle,genes,cance
 					tmp.append(endPos - sentenceStart)
 
 					entityData[entity.entityType] = tmp
+
+				if skip:
+					continue
 
 				associatedVariants = []
 				if geneID in geneID2Variant:
