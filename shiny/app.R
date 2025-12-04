@@ -14,12 +14,12 @@ setwd(wd)
 # Make an empty Google analytics file (for dev version - not for production)
 if (!file.exists('google-analytics.js'))
 {
-  file.create('google-analytics.js')
+  cat("<script></script>",file="google-analytics.js",sep="\n")
 }
 
 collatedFilename <- 'civicmine_collated.tsv'
 sentencesFilename <- 'civicmine_sentences.tsv'
-civicdbFilename <- 'nightly-ClinicalEvidenceSummaries.tsv'
+civicdbFilename <- 'civicdb.tsv'
 
 collatedFilename <- normalizePath(collatedFilename)
 fileInfo <- file.info(collatedFilename)
@@ -57,14 +57,14 @@ ped_collated <- NULL
 yesNoMapping = c("TRUE"="Yes","FALSE"="No")
 
 civicdb <- fread(civicdbFilename,sep='\t',header=T,encoding='UTF-8')
-civicdb <- civicdb[,c('pubmed_id','entrez_id','doid','drugs','evidence_type','variant','phenotypes')]
-civicdb$drugs <- tolower(civicdb$drugs)
+civicdb <- civicdb[,c('pubmed_id','entrez_id','doid','therapies','evidence_type','variant','phenotypes')]
+civicdb$therapies <- tolower(civicdb$therapies)
 civicdb$variant <- tolower(civicdb$variant)
 
 civicdbFileInfo <- file.info(civicdbFilename)
 civicdbModifiedDate <- strsplit(as.character(civicdbFileInfo$mtime), ' ')[[1]][1]
 
-civicdb$combined <- paste(civicdb$evidence_type,civicdb$entrez_id,civicdb$doid,civicdb$drugs,sep='_')
+civicdb$combined <- paste(civicdb$evidence_type,civicdb$entrez_id,civicdb$doid,civicdb$therapies,sep='_')
 
 pediatric_indices <- grep("Pediatric onset|Juvenile onset|Childhood onset|Infantile onset",civicdb$phenotypes, ignore.case=T, perl=T)
 pediatric_civicdb <- civicdb[pediatric_indices,]
