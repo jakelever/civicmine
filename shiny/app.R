@@ -6,6 +6,7 @@ library(dplyr)
 library(reshape2)
 library(RColorBrewer)
 library(data.table)
+library(readr)
 
 # Weird hack as R sometimes "forgets" its working directory
 wd <- setwd(".")
@@ -74,7 +75,7 @@ collated$combined <- paste(collated$evidencetype,collated$gene_entrez_id,gsub("D
 collated$in_civic <- factor(yesNoMapping[as.character(collated$combined %in% civicdb$combined)])
 collated$in_pediatric_civic <- factor(yesNoMapping[as.character(collated$combined %in% pediatric_civicdb$combined)])
 
-sentences <- fread(sentencesFilename,sep='\t',header=T,quote='',encoding='UTF-8')
+sentences <- fread(sentencesFilename,sep='\t',header=T,quote='',encoding='UTF-8', select=c('matching_id','pmid','journal_short','year','section','subsection','formatted_sentence'))
 sentences$pubmed_link <- paste("<a target=\"_blank\" href='https://www.ncbi.nlm.nih.gov/pubmed/", sentences$pmid, "'>", sentences$pmid, "</a>", sep='')
 
 sentences$paper_in_civic <- factor(yesNoMapping[as.character(sentences$pmid %in% civicdb$pubmed_id)])
