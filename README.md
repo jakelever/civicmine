@@ -1,10 +1,7 @@
 # CIViCmine
 
 <p>
-<a href="https://travis-ci.org/jakelever/civicmine">
-  <img src="https://travis-ci.org/jakelever/civicmine.svg?branch=master" />
-</a>
-<a href="http://bionlp.bcgsc.ca/civicmine/">
+<a href="https://civicmine.ai4biomed.org">
    <img src="https://img.shields.io/badge/data-viewer-9e42f4.svg" />
 </a>
 <a href="https://doi.org/10.5281/zenodo.1472826">
@@ -17,7 +14,7 @@
 
 This is a text mining project to assist curation in the [Clinical Interpretation of Variants in Cancer (CIViC) database](https://civicdb.org). CIViC catalogs information on diagnostic, predictive, predisposing and prognostic variants in cancer. This project aims to text mine this data from PubMed and Pubmed Central Open Access subset
 
-In brief: it finds sentences that describe genes, variants, cancer types and optionally drugs. We then annotated many of them to create training data. This is then used to build a classifier using the [Kindred package](https://github.com/jakelever/kindred). This is then applied to all of PubMed and PubMed Central Open Access to extract sentences and structured information. This is then collated for download and viewing through a [web viewer](http://bionlp.bcgsc.ca/civicmine/).
+In brief: it finds sentences that describe genes, variants, cancer types and optionally drugs. We then annotated many of them to create training data. This is then used to build a classifier using the [Kindred package](https://github.com/jakelever/kindred). This is then applied to all of PubMed and PubMed Central Open Access to extract sentences and structured information. This is then collated for download and viewing through a [web viewer](https://civicmine.ai4biomed.org).
 
 ## System Requirements
 
@@ -82,7 +79,7 @@ The three output files of CIViCmine is outlined below. You likely want **civicmi
 
 ## Shiny App
 
-The code in [shiny/](https://github.com/jakelever/civicmine/tree/master/shiny) is the Shiny code used for the [web viewer](http://bionlp.bcgsc.ca/civicmine/). If it is helpful, please use the code for your own projects. The list of dependencies is found at the top of the [app.R](https://github.com/jakelever/civicmine/blob/master/shiny/app.R) file.
+The code in [shiny/](https://github.com/jakelever/civicmine/tree/master/shiny) is the Shiny code used for the [web viewer](https://civicmine.ai4biomed.org). If it is helpful, please use the code for your own projects. The list of dependencies is found at the top of the [app.R](https://github.com/jakelever/civicmine/blob/master/shiny/app.R) file.
 
 ## Paper
 
