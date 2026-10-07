@@ -34,11 +34,11 @@ git clone https://github.com/jakelever/civicmine.git
 
 It uses the [BioText](https://github.com/jakelever/biotext) project which downloads and converts the biomedical research literature into the [BioC XML](http://bioc.sourceforge.net/) format. You'll need to clone it and run the conversion scripts.
 
-The code dependencies can be installed with the command below. You also need to install the [scispacy](https://allenai.github.io/scispacy/) language model.
+The code dependencies can be installed with the command below. You also need to install the [scispacy](https://allenai.github.io/scispacy/) language model. The model version below needs Spacy 3.7 (and numpy 1.x), and Kindred 2.8.3 needs scikit-learn older than 1.8 (the `multi_class` argument was removed in 1.8).
 
 ```
-pip install kindred snakemake scispacy zenodo_get
-pip install https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.4.0/en_core_sci_sm-0.4.0.tar.gz
+pip install kindred snakemake zenodo_get "scikit-learn<1.8" "spacy==3.7.5" "numpy<2"
+pip install https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.5.4/en_core_sci_sm-0.5.4.tar.gz
 ```
 
 Installation should take a maximum of 15 minutes (mostly due to the Spacy and language models installation).
