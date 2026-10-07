@@ -9,6 +9,9 @@ import re
 import string
 from collections import defaultdict,Counter
 import json
+import gzip
+import bioc
+from kindred.loadFunctions import convertBiocDocToKindredDocs
 
 def now():
 	return time.strftime("%Y-%m-%d %H:%M:%S")
@@ -38,18 +41,44 @@ def cleanCorpus(corpus):
 		if doc.metadata['title']:
 			doc.metadata['title'] = tidyWhitespace(fixDashes(doc.metadata['title']))
 
+MAX_BLOCK_CHARS = 500000
+
+# SpaCy refuses texts over 1M characters, so split huge blocks at sentence boundaries
+def splitLongBlock(block):
+	while len(block) > MAX_BLOCK_CHARS:
+		cut = block.rfind('. ',0,MAX_BLOCK_CHARS)
+		cut = cut+1 if cut > 0 else MAX_BLOCK_CHARS
+		yield block[:cut].strip()
+		block = block[cut:]
+	yield block
+
 # Deal with table data stored in tab-delimited form
 def splitTabbedCorpus(corpus):
 	new_corpus = kindred.Corpus()
 	for doc in corpus.documents:
 		for block in doc.text.split('\t'):
 			block = block.strip()
-			if block:
-				new_doc = kindred.Document(block)
-				new_doc.metadata = doc.metadata
-				new_corpus.addDocument(new_doc)
+			for subblock in splitLongBlock(block):
+				if subblock:
+					new_doc = kindred.Document(subblock)
+					new_doc.metadata = doc.metadata
+					new_corpus.addDocument(new_doc)
 
 	return new_corpus
+
+def iterLoadBioc(path,corpusSizeCutoff=500):
+	opener = gzip.open if path.endswith('.gz') else open
+	corpus = kindred.Corpus()
+	with opener(path,'rb') as f:
+		with bioc.biocxml.iterparse(f) as parser:
+			for document in parser:
+				if len(corpus.documents) >= corpusSizeCutoff:
+					yield corpus
+					corpus = kindred.Corpus()
+				for kindredDoc in convertBiocDocToKindredDocs(document):
+					corpus.addDocument(kindredDoc)
+	if len(corpus.documents) > 0:
+		yield corpus
 
 def parseAndFindEntities(biocFile,filterTermsFile,wordlistPickle,variantStopwordsFile,outSentencesFilename,verbose=False):
 	if verbose:
@@ -77,7 +106,7 @@ def parseAndFindEntities(biocFile,filterTermsFile,wordlistPickle,variantStopword
 		print("%s : processing..." % now())
 	parser = kindred.Parser(model='en_core_sci_sm')
 	ner = kindred.EntityRecognizer(lookup=termLookup,detectFusionGenes=True,detectMicroRNA=True,acronymDetectionForAmbiguity=True,mergeTerms=True,detectVariants=True,variantStopwords=variantStopwords)
-	for corpusno,corpus in enumerate(kindred.iterLoad('biocxml',biocFile)):
+	for corpusno,corpus in enumerate(iterLoadBioc(biocFile)):
 		if filterTerms:
 			startTime = time.time()
 			corpus = filterCorpus(corpus,filterTerms)
