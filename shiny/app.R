@@ -7,6 +7,7 @@ library(reshape2)
 library(RColorBrewer)
 library(data.table)
 library(readr)
+library(DBI)
 
 # Weird hack as R sometimes "forgets" its working directory
 wd <- setwd(".")
@@ -75,10 +76,61 @@ collated$combined <- paste(collated$evidencetype,collated$gene_entrez_id,gsub("D
 collated$in_civic <- factor(yesNoMapping[as.character(collated$combined %in% civicdb$combined)])
 collated$in_pediatric_civic <- factor(yesNoMapping[as.character(collated$combined %in% pediatric_civicdb$combined)])
 
-sentences <- fread(sentencesFilename,sep='\t',header=T,quote='',encoding='UTF-8', select=c('matching_id','pmid','journal_short','year','section','subsection','formatted_sentence'))
-sentences$pubmed_link <- paste("<a target=\"_blank\" href='https://www.ncbi.nlm.nih.gov/pubmed/", sentences$pmid, "'>", sentences$pmid, "</a>", sep='')
+# The sentences are kept in an SQLite database (indexed by matching_id) and looked up when needed, instead of being held in memory
+sentencesDBFilename <- 'civicmine_sentences.sqlite'
+if (!file.exists(sentencesDBFilename) || (file.exists(sentencesFilename) && file.mtime(sentencesDBFilename) < file.mtime(sentencesFilename))) {
+  # Build it in a separate R process so that the memory used to read the sentences isn't kept by the app
+  stopifnot(system2('Rscript', 'prepareSentencesDB.R') == 0)
+}
+sentencesDB <- dbConnect(RSQLite::SQLite(), sentencesDBFilename, flags=RSQLite::SQLITE_RO)
 
-sentences$paper_in_civic <- factor(yesNoMapping[as.character(sentences$pmid %in% civicdb$pubmed_id)])
+civicPubmedIDs <- unique(civicdb$pubmed_id)
+
+addSentenceColumns <- function(entries) {
+  entries$pubmed_link <- paste("<a target=\"_blank\" href='https://www.ncbi.nlm.nih.gov/pubmed/", entries$pmid, "'>", entries$pmid, "</a>", sep='')
+  entries$paper_in_civic <- factor(yesNoMapping[as.character(entries$pmid %in% civicPubmedIDs)])
+  entries
+}
+
+# Get the sentences (in file order) for a set of matching IDs
+getSentences <- function(matching_ids) {
+  matching_ids <- unique(as.character(matching_ids))
+  if (length(matching_ids) == 0) {
+    entries <- dbGetQuery(sentencesDB, 'SELECT * FROM sentences LIMIT 0')
+  } else {
+    # Query in batches to stay within SQLite's limit on query parameters
+    batches <- split(matching_ids, ceiling(seq_along(matching_ids)/10000))
+    entries <- rbindlist(lapply(batches, function(batch) {
+      query <- sprintf('SELECT rowid AS sentence_rowid, * FROM sentences WHERE matching_id IN (%s)', paste(rep('?',length(batch)),collapse=','))
+      dbGetQuery(sentencesDB, query, params=as.list(batch))
+    }))
+    entries <- entries[order(entries$sentence_rowid),]
+    entries$sentence_rowid <- NULL
+  }
+  addSentenceColumns(as.data.table(entries))
+}
+
+sentenceColumns <- colnames(getSentences(c()))
+
+# Write sentences (all of them, or those for a set of matching IDs) to a file in chunks so that they aren't all loaded into memory at once
+writeSentences <- function(file, matching_ids=c(), all=FALSE) {
+  if (all) {
+    result <- dbSendQuery(sentencesDB, 'SELECT * FROM sentences ORDER BY rowid')
+  } else {
+    dbWriteTable(sentencesDB, 'selected_ids', data.frame(matching_id=unique(as.character(matching_ids))), temporary=TRUE, overwrite=TRUE)
+    on.exit(dbRemoveTable(sentencesDB, 'selected_ids', temporary=TRUE))
+    result <- dbSendQuery(sentencesDB, 'SELECT * FROM sentences WHERE matching_id IN (SELECT matching_id FROM selected_ids) ORDER BY rowid')
+  }
+  first <- TRUE
+  repeat {
+    entries <- addSentenceColumns(as.data.table(dbFetch(result, n=50000)))
+    write.table(entries, file, row.names = FALSE, sep='\t', quote=F, col.names=first, append=!first)
+    first <- FALSE
+    if (dbHasCompleted(result))
+      break
+  }
+  dbClearResult(result)
+}
 
 
 citationTableExplanation <- "<br /><br /><br /><b>Citation Table:</b><br />Select a biomarker in the table above to see associated citations and sentences<br /><br />"
@@ -259,15 +311,15 @@ server <- function(input, output, session) {
     if(length(input$data_table_rows_selected)>0) {
       table <- tableData()
       row <- table[input$data_table_rows_selected,]
-      entries <- sentences[sentences$matching_id==row$matching_id,]
+      entries <- getSentences(row$matching_id)
       
       if (!is.null(input$pediatric_input) && input$pediatric_input == 'Yes') {
         entries <- entries[entries$is_pediatric,]
       }
       
     } else {
-      entries <- data.frame(matrix(nrow=0,ncol=ncol(sentences)))
-      colnames(entries) <- colnames(sentences)
+      entries <- data.frame(matrix(nrow=0,ncol=length(sentenceColumns)))
+      colnames(entries) <- sentenceColumns
     }
     DT::datatable(entries[,c('pubmed_link','journal_short','year','paper_in_civic','section','subsection','formatted_sentence')],
                   selection = 'none',
@@ -474,7 +526,7 @@ server <- function(input, output, session) {
       return("civicmine_sentences.tsv")
     },
     content = function(file) {
-      write.table(sentences, file, row.names = FALSE, sep='\t', quote=F)
+      writeSentences(file, all=TRUE)
     }
   )
   
@@ -486,10 +538,10 @@ server <- function(input, output, session) {
       if(length(input$data_table_rows_selected)>0) {
         table <- tableData()
         row <- table[input$data_table_rows_selected,]
-        entries <- sentences[sentences$matching_id==row$matching_id,]
+        entries <- getSentences(row$matching_id)
       } else {
-        entries <- data.frame(matrix(nrow=0,ncol=ncol(sentences)))
-        colnames(entries) <- colnames(sentences)
+        entries <- data.frame(matrix(nrow=0,ncol=length(sentenceColumns)))
+        colnames(entries) <- sentenceColumns
       }
       
       write.table(entries, file, row.names = FALSE, sep='\t', quote=F)
@@ -502,9 +554,7 @@ server <- function(input, output, session) {
     },
     content = function(file) {
       table <- tableData()
-      entries <- sentences[sentences$matching_id %in% table$matching_id,]
-      
-      write.table(entries, file, row.names = FALSE, sep='\t', quote=F)
+      writeSentences(file, table$matching_id)
     }
   )
 
